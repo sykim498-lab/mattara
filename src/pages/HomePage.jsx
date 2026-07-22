@@ -8,6 +8,7 @@ export function HomePage({
   recommendedPosts = [],
   hasRecommendationHistory = false,
   bookmarkedIds = new Set(),
+  onOpenCourses = () => {},
   onOpenPost,
   onResetRecommendations = () => {},
   onSelectTags = () => {},
@@ -118,6 +119,14 @@ export function HomePage({
               이 카테고리의 새로운 맛집을 준비 중이에요.
             </div>
           )}
+        </div>
+        <div className="course-banner home-course-banner">
+          <div>
+            <p className="eyebrow">8 LOCAL ROUTES · GURYE ONLY</p>
+            <h2>계획 없이 떠나는 구례 맞춤 코스</h2>
+            <p>취향 태그를 바탕으로 프랜차이즈 없는 구례 로컬 코스를 먼저 보여드려요.</p>
+          </div>
+          <button type="button" onClick={onOpenCourses}>8개 맞춤 코스 보기 →</button>
         </div>
       </div>
     </section>

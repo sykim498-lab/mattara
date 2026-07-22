@@ -8,6 +8,7 @@ import './styles/carousel.css';
 import './styles/engagement.css';
 import './styles/detail.css';
 import './styles/course.css';
+import './styles/course-selector.css';
 import './styles/forms.css';
 import './styles/admin.css';
 import './styles/auth.css';

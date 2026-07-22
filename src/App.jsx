@@ -1,7 +1,6 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { AdminCategoriesPage } from './pages/AdminCategoriesPage';
 import { AuthPage } from './pages/AuthPage';
-import { CoursePage } from './pages/CoursePage';
 import { DetailPage } from './pages/DetailPage';
 import { HomePage } from './pages/HomePage';
 import { NewRestaurantPage } from './pages/NewRestaurantPage';
@@ -16,6 +15,10 @@ import { useCategories } from './hooks/useCategories';
 import { useHashNavigation } from './hooks/useHashNavigation';
 import { useRecommendations } from './hooks/useRecommendations';
 import { signOut } from './services/authService';
+
+const CoursePage = lazy(() => import('./pages/CoursePage').then((module) => ({
+  default: module.CoursePage,
+})));
 
 export default function App() {
   const categoryStore = useCategories();
@@ -100,14 +103,16 @@ export default function App() {
         />
       );
     }
-    if (route.view === 'course' && selectedPost) {
+    if (route.view === 'course') {
       return (
-        <CoursePage
-          post={selectedPost}
-          tagScores={tagScores}
-          onHome={() => navigate('home')}
-          onPost={() => navigate('post', selectedPost.id)}
-        />
+        <Suspense fallback={<div className="view shell">구례 코스를 불러오는 중...</div>}>
+          <CoursePage
+            post={selectedPost}
+            tagScores={tagScores}
+            onHome={() => navigate('home')}
+            onPost={selectedPost ? () => navigate('post', selectedPost.id) : undefined}
+          />
+        </Suspense>
       );
     }
     return (
@@ -117,6 +122,7 @@ export default function App() {
         recommendedPosts={recommendedPosts}
         hasRecommendationHistory={hasRecommendationHistory}
         bookmarkedIds={bookmarkStore.bookmarkedIds}
+        onOpenCourses={() => navigate('course')}
         onOpenPost={(postId) => navigate('post', postId)}
         onResetRecommendations={resetRecommendations}
         onSelectTags={recordTags}

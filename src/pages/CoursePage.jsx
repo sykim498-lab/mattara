@@ -6,12 +6,12 @@ import { createCourses } from '../data/createCourses';
 const SAVED_COURSES_KEY = 'mattara.gurye.saved-courses.v1';
 
 export function CoursePage({ post, tagScores = {}, onHome, onPost }) {
-  const courses = useMemo(() => createCourses(post, tagScores), [post, tagScores]);
-  const [courseIndex, setCourseIndex] = useState(0);
+  const courses = useMemo(() => createCourses(tagScores), [tagScores]);
+  const [courseId, setCourseId] = useState(null);
   const [stepIndex, setStepIndex] = useState(0);
-  const course = courses[courseIndex];
+  const course = courses.find(({ id }) => id === courseId) ?? courses[0];
   const step = course.steps[stepIndex];
-  const courseId = `${post.id}:${course.theme}`;
+  const savedCourseId = course.id;
   const [savedCourseIds, setSavedCourseIds] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem(SAVED_COURSES_KEY)) ?? [];
@@ -19,10 +19,15 @@ export function CoursePage({ post, tagScores = {}, onHome, onPost }) {
       return [];
     }
   });
-  const isSaved = savedCourseIds.includes(courseId);
+  const isSaved = savedCourseIds.includes(savedCourseId);
+  const breadcrumbItems = [
+    { label: '홈 피드', onClick: onHome },
+    ...(post ? [{ label: post.name, onClick: onPost }] : []),
+    { label: '추천 코스' },
+  ];
 
-  const changeCourse = (index) => {
-    setCourseIndex(index);
+  const changeCourse = (id) => {
+    setCourseId(id);
     setStepIndex(0);
   };
   const moveStep = (offset) => {
@@ -32,8 +37,8 @@ export function CoursePage({ post, tagScores = {}, onHome, onPost }) {
   };
   const toggleCourseSave = () => {
     const next = isSaved
-      ? savedCourseIds.filter((id) => id !== courseId)
-      : [...savedCourseIds, courseId];
+      ? savedCourseIds.filter((id) => id !== savedCourseId)
+      : [...savedCourseIds, savedCourseId];
     localStorage.setItem(SAVED_COURSES_KEY, JSON.stringify(next));
     setSavedCourseIds(next);
   };
@@ -42,11 +47,7 @@ export function CoursePage({ post, tagScores = {}, onHome, onPost }) {
     <section className="view">
       <div className="shell">
         <Breadcrumbs
-          items={[
-            { label: '홈 피드', onClick: onHome },
-            { label: post.name, onClick: onPost },
-            { label: '추천 코스' },
-          ]}
+          items={breadcrumbItems}
         />
         <div className="course-head">
           <p className="eyebrow">YOUR PERFECT DAY</p>
@@ -54,24 +55,31 @@ export function CoursePage({ post, tagScores = {}, onHome, onPost }) {
             구례에서 즐기는<br />
             <span>맛있는 하루 코스</span>
           </h1>
-          <p>{post.name} 피드를 바탕으로 취향과 동선을 조합했어요.</p>
+          <p>저장된 관심사 태그와 구례 로컬 동선을 조합했어요.</p>
         </div>
         <div className="course-tabs" role="tablist" aria-label="추천 코스 선택">
           {courses.map((item, index) => (
             <button
-              className={`course-tab${index === courseIndex ? ' active' : ''}`}
+              className={`course-tab${item.id === course.id ? ' active' : ''}`}
               type="button"
               role="tab"
-              aria-selected={index === courseIndex}
-              onClick={() => changeCourse(index)}
-              key={item.theme}
+              aria-selected={item.id === course.id}
+              onClick={() => changeCourse(item.id)}
+              key={item.id}
             >
-              코스 {String.fromCharCode(65 + index)}
+              <span>{index === 0 ? '맞춤 1순위' : `코스 ${item.number}`}</span>
+              <b>{item.theme}</b>
+              <small>
+                {item.matchedTags.length ? item.matchedTags.join(' · ') : '구례 로컬 추천'}
+              </small>
             </button>
           ))}
         </div>
         <div className="theme-strip">
-          <div><b>{course.theme}</b><span>{course.description}</span></div>
+          <div>
+            <b>코스 {course.number} · {course.theme}</b>
+            <span>{course.description}</span>
+          </div>
           <button className={`course-save${isSaved ? ' active' : ''}`} type="button" onClick={toggleCourseSave}>
             {isSaved ? '✓ 코스 저장됨' : '＋ 코스 저장'}
           </button>
@@ -94,7 +102,11 @@ export function CoursePage({ post, tagScores = {}, onHome, onPost }) {
             </div>
           </article>
           <aside className="panel map-panel">
-            <CourseMap course={course} activeStep={stepIndex} />
+            <CourseMap
+              course={course}
+              activeStep={stepIndex}
+              onSelectStep={setStepIndex}
+            />
             <div className="route-note">
               <b>총 예상 동선 · <span>{course.distance}</span></b>
               <span>{course.mode}</span>

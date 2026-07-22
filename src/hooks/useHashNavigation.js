@@ -8,6 +8,9 @@ function parseHash(hash) {
   }
 
   const [view, rawId] = value.split('/');
+  if (view === 'course' && rawId == null) {
+    return { view: 'course', postId: null };
+  }
   const postId = Number(rawId);
   if (['post', 'course'].includes(view) && Number.isInteger(postId)) {
     return { view, postId };
