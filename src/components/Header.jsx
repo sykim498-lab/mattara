@@ -4,7 +4,12 @@ export function Header({ user, onAdmin, onAuth, onHome, onNewPost, onSaved, onSi
     <header className="topbar">
       <div className="shell nav">
         <a className="brand" href="#/home" onClick={onHome} aria-label="맛따라 홈으로 이동">
-          <img className="brand-logo" src="/mattara-logo.png" alt="" aria-hidden="true" />
+          <img
+            className="brand-logo"
+            src={`${import.meta.env.BASE_URL}mattara-logo.png`}
+            alt=""
+            aria-hidden="true"
+          />
           <span>맛따라</span>
         </a>
         <nav className="nav-right" aria-label="주요 메뉴">
