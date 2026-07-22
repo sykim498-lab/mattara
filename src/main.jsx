@@ -14,6 +14,10 @@ import './styles/auth.css';
 import './styles/motion.css';
 import './styles/responsive.css';
 
+void import('./services/firebase').then(({ initializeFirebaseAnalytics }) =>
+  initializeFirebaseAnalytics(),
+);
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />
