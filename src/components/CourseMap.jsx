@@ -1,0 +1,49 @@
+import { useEffect, useRef } from 'react';
+import L from 'leaflet';
+import { addTileLayer, createNumberIcon } from '../features/maps/leaflet';
+
+export function CourseMap({ course, activeStep }) {
+  const containerRef = useRef(null);
+  const mapRef = useRef(null);
+  const markersRef = useRef([]);
+
+  useEffect(() => {
+    const map = L.map(containerRef.current, { zoomControl: false });
+    const points = course.steps.map(({ lat, lng }) => [lat, lng]);
+    addTileLayer(map);
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+    markersRef.current = course.steps.map((step, index) =>
+      L.marker([step.lat, step.lng], {
+        icon: createNumberIcon(index + 1, index === 0),
+      })
+        .addTo(map)
+        .bindTooltip(step.name, { direction: 'top', offset: [0, -36] }),
+    );
+    L.polyline(points, {
+      color: '#ea580c',
+      weight: 4,
+      dashArray: '7 10',
+      opacity: 0.72,
+    }).addTo(map);
+    map.fitBounds(L.latLngBounds(points).pad(0.25));
+    mapRef.current = map;
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+      markersRef.current = [];
+    };
+  }, [course]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    const step = course.steps[activeStep];
+    markersRef.current.forEach((marker, index) => {
+      marker.setIcon(createNumberIcon(index + 1, index === activeStep));
+      marker.setZIndexOffset(index === activeStep ? 1000 : 0);
+    });
+    if (map) map.flyTo([step.lat, step.lng], 15, { duration: 0.75 });
+  }, [activeStep, course]);
+
+  return <div ref={containerRef} className="course-map" aria-label="추천 코스 지도" />;
+}

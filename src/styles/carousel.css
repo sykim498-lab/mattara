@@ -1,0 +1,87 @@
+.feed-carousel-button {
+  position: absolute;
+  top: 50%;
+  z-index: 4;
+  width: 34px;
+  height: 34px;
+  transform: translateY(-50%) scale(0.9);
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.16);
+  color: var(--ink);
+  font-size: 22px;
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.25s ease;
+}
+
+.feed-carousel-button.prev {
+  left: 11px;
+}
+
+.feed-carousel-button.next {
+  right: 11px;
+}
+
+.photo-wrap:hover .feed-carousel-button,
+.feed-carousel-button:focus-visible {
+  transform: translateY(-50%) scale(1);
+  opacity: 1;
+}
+
+.feed-carousel-button:hover {
+  background: #fff3e8;
+}
+
+.feed-carousel-button:active {
+  transform: translateY(-50%) scale(0.94);
+}
+
+.feed-carousel-dots {
+  position: absolute;
+  bottom: 11px;
+  left: 50%;
+  display: flex;
+  gap: 5px;
+  transform: translateX(-50%);
+}
+
+.feed-carousel-dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  transition: width 0.25s ease, background-color 0.25s ease;
+}
+
+.feed-carousel-dots i.active {
+  width: 16px;
+  border-radius: 99px;
+  background: white;
+}
+
+.image-comment {
+  display: flex;
+  align-items: start;
+  gap: 13px;
+  border-bottom: 1px solid #f3e7df;
+  padding: 14px 20px;
+  background: #fffaf5;
+}
+
+.image-comment span {
+  flex: 0 0 auto;
+  border-radius: 99px;
+  padding: 4px 8px;
+  background: #ffead8;
+  color: var(--orange-dark);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.image-comment p {
+  margin: 1px 0 0;
+  color: #665850;
+  font-size: 12px;
+  line-height: 1.6;
+}

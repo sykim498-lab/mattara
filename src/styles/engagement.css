@@ -1,0 +1,69 @@
+.recommendation-section {
+  margin: 0 0 34px;
+  border: 1px solid #f3ddcd;
+  border-radius: 30px;
+  padding: 25px;
+  background: linear-gradient(135deg, #fff8ee, #fffdf9);
+}
+
+.recommendation-heading,
+.saved-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.recommendation-heading h2,
+.saved-heading h1 {
+  margin: 0;
+  font-size: 25px;
+}
+
+.recommendation-heading p:not(.eyebrow) {
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.recommendation-heading button,
+.saved-heading > span {
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 9px 12px;
+  background: white;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.recommendation-grid .feed-card {
+  box-shadow: 0 8px 24px rgba(92, 50, 21, 0.06);
+}
+
+.feed-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 10px 14px;
+  background: white;
+}
+
+.feed-search span {
+  flex: 0 0 auto;
+  color: var(--orange-dark);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.feed-search input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  color: var(--ink);
+}

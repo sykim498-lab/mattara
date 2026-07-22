@@ -1,0 +1,246 @@
+@media (max-width: 1060px) {
+  .admin-link {
+    display: none;
+  }
+}
+
+@media (max-width: 920px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .detail-layout,
+  .course-layout,
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .map-panel {
+    position: relative;
+    top: auto;
+  }
+
+  .detail-image {
+    height: 480px;
+  }
+
+  .course-map {
+    height: 420px;
+  }
+}
+
+@media (max-width: 760px) {
+  .nav-right .ghost,
+  .account-button {
+    display: none;
+  }
+
+  .nav-right .primary {
+    padding-inline: 12px;
+  }
+}
+
+@media (max-width: 620px) {
+  .shell {
+    width: min(100% - 24px, 1180px);
+  }
+
+  .nav {
+    height: 66px;
+  }
+
+  .brand {
+    font-size: 19px;
+  }
+
+  .brand-logo {
+    width: 43px;
+    height: 43px;
+  }
+
+  .view {
+    padding: 25px 0 50px;
+  }
+
+  .hero {
+    display: block;
+  }
+
+  .back-button {
+    top: 76px;
+    left: 12px;
+    padding: 7px 10px;
+  }
+
+  .feed-search {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .recommendation-section {
+    border-radius: 23px;
+    padding: 18px;
+  }
+
+  .recommendation-heading,
+  .saved-heading {
+    align-items: start;
+  }
+
+  .recommendation-heading button {
+    max-width: 80px;
+  }
+
+  .hero > p {
+    margin-top: 13px;
+    font-size: 13px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .feed-card,
+  .panel {
+    border-radius: 23px;
+  }
+
+  .detail-image {
+    height: 390px;
+  }
+
+  .detail-copy {
+    padding: 19px;
+  }
+
+  .detail-layout,
+  .course-layout {
+    gap: 17px;
+  }
+
+  .map {
+    height: 300px;
+  }
+
+  .course-banner {
+    display: block;
+    padding: 23px;
+  }
+
+  .course-banner button {
+    width: 100%;
+    margin-top: 17px;
+  }
+
+  .course-tabs {
+    position: sticky;
+    top: 66px;
+    z-index: 500;
+    margin: 15px 0;
+    padding: 10px 0;
+    background: rgba(255, 250, 244, 0.94);
+  }
+
+  .course-tab {
+    min-width: 88px;
+  }
+
+  .theme-strip {
+    display: block;
+  }
+
+  .theme-strip span {
+    display: block;
+    margin-top: 5px;
+  }
+
+  .step-photo {
+    height: 300px;
+  }
+
+  .course-map {
+    height: 360px;
+  }
+
+  .theme-strip,
+  .theme-strip > div,
+  .route-itinerary {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .course-save {
+    width: 100%;
+  }
+
+  .route-itinerary ol {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .route-itinerary button {
+    width: 100%;
+    text-align: left;
+  }
+
+  .route-note {
+    align-items: start;
+    gap: 8px;
+  }
+
+  .admin-heading {
+    display: block;
+  }
+
+  .admin-heading .ghost {
+    margin-top: 16px;
+  }
+
+  .category-row {
+    align-items: start;
+    flex-wrap: wrap;
+  }
+
+  .row-actions {
+    width: 100%;
+    padding-left: 53px;
+  }
+
+  .category-form,
+  .restaurant-form,
+  .auth-card {
+    padding: 22px;
+  }
+
+  .form-grid,
+  .restaurant-form .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer .shell {
+    display: block;
+  }
+
+  .footer span {
+    display: block;
+    margin-top: 6px;
+  }
+}
+
+@media (hover: none) {
+  .feed-carousel-button {
+    transform: translateY(-50%) scale(1);
+    opacity: 0.88;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

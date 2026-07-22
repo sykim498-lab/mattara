@@ -1,0 +1,249 @@
+.course-head {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.course-head h1 {
+  margin: 4px 0 10px;
+  font-size: clamp(29px, 4vw, 44px);
+  letter-spacing: -0.045em;
+}
+
+.course-head h1 span {
+  color: var(--orange);
+}
+
+.course-head > p:last-child {
+  margin: 0;
+  color: var(--muted);
+}
+
+.course-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+  margin: 23px 0 26px;
+}
+
+.course-tab {
+  min-width: 100px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 11px 17px;
+  background: white;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.course-tab.active {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--orange), var(--amber));
+  box-shadow: 0 9px 20px rgba(234, 88, 12, 0.2);
+  color: white;
+}
+
+.theme-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  border: 1px solid #fed7aa;
+  border-radius: 18px;
+  padding: 14px 18px;
+  background: #fff7ed;
+}
+
+.theme-strip > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.theme-strip b {
+  color: var(--orange-dark);
+}
+
+.theme-strip span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.course-save {
+  flex: 0 0 auto;
+  border: 1px solid #fdba74;
+  border-radius: 11px;
+  padding: 9px 12px;
+  background: white;
+  color: var(--orange-dark);
+  font-size: 12px;
+  font-weight: 900;
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+
+.course-save:hover,
+.course-save.active {
+  border-color: var(--orange);
+  background: #ffedd5;
+  transform: translateY(-2px);
+}
+
+.step-panel {
+  padding: 19px;
+}
+
+.step-photo {
+  position: relative;
+  overflow: hidden;
+  height: 365px;
+  border-radius: 22px;
+}
+
+.step-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.step-no {
+  position: absolute;
+  top: 17px;
+  left: 17px;
+  border-radius: 11px;
+  padding: 8px 11px;
+  background: linear-gradient(135deg, var(--orange), var(--amber));
+  color: white;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.step-copy {
+  padding: 19px 5px 4px;
+}
+
+.step-copy h2 {
+  margin: 0 0 7px;
+  font-size: 26px;
+}
+
+.step-copy > p:not(.eyebrow) {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.step-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18px;
+}
+
+.step-nav button {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: white;
+  font-weight: 800;
+}
+
+.step-progress {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.course-map {
+  height: 520px;
+}
+
+.route-note {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+}
+
+.route-note span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.route-itinerary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 24px;
+  border-radius: 24px;
+  padding: 22px 25px;
+  background: linear-gradient(120deg, #3f6212, #65a30d);
+  box-shadow: 0 14px 34px rgba(63, 98, 18, 0.18);
+  color: white;
+}
+
+.route-itinerary .eyebrow {
+  color: #d9f99d;
+}
+
+.route-itinerary ol {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.route-itinerary button {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 12px;
+  padding: 9px 11px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.route-itinerary button:hover,
+.route-itinerary button.active {
+  background: white;
+  color: #3f6212;
+  transform: translateY(-2px);
+}
+
+.route-itinerary button span {
+  margin-right: 6px;
+  opacity: 0.72;
+}
+
+.number-marker {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  transform: rotate(-45deg);
+  border: 3px solid white;
+  border-radius: 50% 50% 50% 0;
+  background: #6f625b;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  color: white;
+  font-weight: 900;
+}
+
+.number-marker span {
+  transform: rotate(45deg);
+}
+
+.number-marker.active {
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, var(--orange), var(--amber));
+}
+
+.leaflet-div-icon {
+  border: 0 !important;
+  background: none !important;
+}
