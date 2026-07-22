@@ -12,6 +12,8 @@ import './styles/course.css';
 import './styles/course-selector.css';
 import './styles/forms.css';
 import './styles/admin.css';
+import './styles/admin-dashboard.css';
+import './styles/admin-content.css';
 import './styles/auth.css';
 import './styles/motion.css';
 import './styles/responsive.css';

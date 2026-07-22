@@ -2,28 +2,71 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function profile() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isLegacyAdmin() {
+      return signedIn()
+        && !('role' in profile())
+        && profile().createdAt <= timestamp.value('2026-07-22T08:05:00Z');
+    }
+
+    function isAdmin() {
+      return signedIn() && (
+        ('admin' in request.auth.token && request.auth.token.admin == true)
+        || ('role' in profile() && profile().role == 'admin')
+        || isLegacyAdmin()
+      );
+    }
+
+    function isEditor() {
+      return isAdmin() || (
+        signedIn() && 'role' in profile() && profile().role == 'editor'
+      );
+    }
+
     match /posts/{postId} {
       allow read: if true;
-      allow write: if false;
+      allow write: if isEditor();
     }
 
     match /courses/{courseId} {
       allow read: if true;
-      allow write: if false;
+      allow write: if isEditor();
     }
 
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if signedIn() && (request.auth.uid == userId || isAdmin());
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.role == 'member';
+      allow update: if isAdmin() || (
+        signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['displayName', 'email', 'updatedAt', 'lastLoginAt'])
+      );
+      allow delete: if isAdmin() && request.auth.uid != userId;
 
       match /{document=**} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if signedIn() && request.auth.uid == userId;
       }
     }
 
     match /restaurant_submissions/{submissionId} {
-      allow create: if request.auth != null
+      allow create: if signedIn()
         && request.resource.data.user_id == request.auth.uid;
-      allow read, update, delete: if false;
+      allow read, update, delete: if isEditor();
+    }
+
+    match /appMeta/{documentId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }

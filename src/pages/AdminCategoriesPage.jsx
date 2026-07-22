@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { CategoryForm } from '../components/CategoryForm';
 
-export function AdminCategoriesPage({ categoryStore, onHome }) {
+export function AdminCategoriesPage({ categoryStore, onHome, embedded = false }) {
   const [editingId, setEditingId] = useState(null);
   const { categories, addCategory, updateCategory, deleteCategory, resetCategories } =
     categoryStore;
@@ -25,10 +25,8 @@ export function AdminCategoriesPage({ categoryStore, onHome }) {
     }
   };
 
-  return (
-    <section className="view admin-view">
-      <div className="shell">
-        <Breadcrumbs items={[{ label: '홈 피드', onClick: onHome }, { label: '카테고리 관리' }]} />
+  const contents = (
+    <>
         <div className="admin-heading">
           <div>
             <p className="eyebrow">ADMIN · FEED SETTINGS</p>
@@ -85,6 +83,15 @@ export function AdminCategoriesPage({ categoryStore, onHome }) {
           현재 프로토타입에서는 이 브라우저에 저장됩니다. 운영 환경에서는 관리자
           인증과 서버 API를 통해 같은 데이터 구조를 저장하도록 연결합니다.
         </p>
+    </>
+  );
+
+  if (embedded) return <div className="admin-categories-embedded">{contents}</div>;
+  return (
+    <section className="view admin-view">
+      <div className="shell">
+        <Breadcrumbs items={[{ label: '홈 피드', onClick: onHome }, { label: '카테고리 관리' }]} />
+        {contents}
       </div>
     </section>
   );

@@ -6,8 +6,21 @@ export async function subscribeToPosts(onPosts, onError) {
   return onSnapshot(query(collection(db, 'posts')), (snapshot) => {
     const posts = snapshot.docs
       .map((item) => item.data())
+      .filter((item) => item.published !== false)
       .sort((a, b) => a.id - b.id);
     onPosts(posts);
+  }, onError);
+}
+
+export async function subscribeToCourses(onCourses, onError) {
+  const db = await getFirestoreDatabase();
+  const { collection, onSnapshot, query } = await import('firebase/firestore');
+  return onSnapshot(query(collection(db, 'courses')), (snapshot) => {
+    const courses = snapshot.docs
+      .map((item) => item.data())
+      .filter((item) => item.published !== false)
+      .sort((a, b) => a.number - b.number);
+    onCourses(courses);
   }, onError);
 }
 

@@ -28,8 +28,8 @@ export function courseScore(course, tagScores = {}) {
   return course.tags.reduce((score, tag) => score + (tagScores[tag] ?? 0), 0);
 }
 
-export function createCourses(tagScores = {}) {
-  return guryeCourses
+export function createCourses(tagScores = {}, sourceCourses = guryeCourses) {
+  return sourceCourses
     .filter(isGuryeCourse)
     .map((course) => ({
       ...course,

@@ -32,6 +32,7 @@ export async function signUpWithPassword(identifier, password) {
     const { doc, serverTimestamp, setDoc } = await import('firebase/firestore');
     await setDoc(doc(db, 'users', result.user.uid), {
       email: result.user.email,
+      role: 'member',
       createdAt: serverTimestamp(),
     }, { merge: true });
     return { user: result.user, requiresEmailConfirmation: false };

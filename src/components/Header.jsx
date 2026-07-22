@@ -1,4 +1,4 @@
-export function Header({ user, onAdmin, onAuth, onHome, onNewPost, onSaved, onSignOut }) {
+export function Header({ user, isAdmin, onAdmin, onAuth, onHome, onNewPost, onSaved, onSignOut }) {
   const accountName = user?.displayName ?? user?.email?.split('@')[0];
   return (
     <header className="topbar">
@@ -16,9 +16,11 @@ export function Header({ user, onAdmin, onAuth, onHome, onNewPost, onSaved, onSi
           <button className="ghost" type="button" onClick={onHome}>
             맛집 둘러보기
           </button>
-          <button className="ghost admin-link" type="button" onClick={onAdmin}>
-            카테고리 관리
-          </button>
+          {isAdmin && (
+            <button className="ghost admin-link" type="button" onClick={onAdmin}>
+              관리자 센터
+            </button>
+          )}
           <button className="ghost" type="button" onClick={onSaved}>
             마이페이지
           </button>

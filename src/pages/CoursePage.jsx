@@ -5,8 +5,11 @@ import { createCourses } from '../data/createCourses';
 
 const SAVED_COURSES_KEY = 'mattara.gurye.saved-courses.v1';
 
-export function CoursePage({ post, tagScores = {}, onHome, onPost }) {
-  const courses = useMemo(() => createCourses(tagScores), [tagScores]);
+export function CoursePage({ post, sourceCourses, tagScores = {}, onHome, onPost }) {
+  const courses = useMemo(
+    () => createCourses(tagScores, sourceCourses),
+    [tagScores, sourceCourses],
+  );
   const [courseId, setCourseId] = useState(null);
   const [stepIndex, setStepIndex] = useState(0);
   const course = courses.find(({ id }) => id === courseId) ?? courses[0];

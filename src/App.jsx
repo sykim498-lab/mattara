@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { AdminCategoriesPage } from './pages/AdminCategoriesPage';
+import { AdminPage } from './pages/AdminPage';
 import { AuthPage } from './pages/AuthPage';
 import { DetailPage } from './pages/DetailPage';
 import { HomePage } from './pages/HomePage';
@@ -9,11 +9,14 @@ import { Footer } from './components/Footer';
 import { BackButton } from './components/BackButton';
 import { Header } from './components/Header';
 import { posts as fallbackPosts } from './data/posts';
+import { guryeCourses } from './data/guryeCourses';
 import { useAuth } from './hooks/useAuth';
+import { useAdminAccess } from './hooks/useAdminAccess';
 import { useBookmarks } from './hooks/useBookmarks';
 import { useCategories } from './hooks/useCategories';
 import { useHashNavigation } from './hooks/useHashNavigation';
 import { useFirestorePosts } from './hooks/useFirestorePosts';
+import { useFirestoreCourses } from './hooks/useFirestoreCourses';
 import { useRecommendations } from './hooks/useRecommendations';
 import { signOut } from './services/authService';
 
@@ -24,7 +27,9 @@ const CoursePage = lazy(() => import('./pages/CoursePage').then((module) => ({
 export default function App() {
   const categoryStore = useCategories();
   const auth = useAuth();
+  const adminAccess = useAdminAccess(auth.user);
   const posts = useFirestorePosts(fallbackPosts);
+  const courses = useFirestoreCourses(guryeCourses);
   const bookmarkStore = useBookmarks(auth.user);
   const {
     recommendedPosts,
@@ -56,9 +61,12 @@ export default function App() {
   const renderPage = () => {
     if (route.view === 'admin') {
       return (
-        <AdminCategoriesPage
+        <AdminPage
+          user={auth.user}
+          access={adminAccess}
           categoryStore={categoryStore}
           onHome={() => navigate('home')}
+          onLogin={() => navigate('login')}
         />
       );
     }
@@ -110,6 +118,7 @@ export default function App() {
         <Suspense fallback={<div className="view shell">구례 코스를 불러오는 중...</div>}>
           <CoursePage
             post={selectedPost}
+            sourceCourses={courses}
             tagScores={tagScores}
             onHome={() => navigate('home')}
             onPost={selectedPost ? () => navigate('post', selectedPost.id) : undefined}
@@ -137,6 +146,7 @@ export default function App() {
     <>
       <Header
         user={auth.user}
+        isAdmin={adminAccess.isAdmin}
         onHome={() => navigate('home')}
         onAdmin={() => navigate('admin')}
         onNewPost={() => navigate('new')}
