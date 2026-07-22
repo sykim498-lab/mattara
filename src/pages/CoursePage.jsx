@@ -3,26 +3,25 @@ import { Breadcrumbs } from '../components/Breadcrumbs';
 import { CourseMap } from '../components/CourseMap';
 import { createCourses } from '../data/createCourses';
 
-const SAVED_COURSES_KEY = 'mattara.gurye.saved-courses.v1';
-
-export function CoursePage({ post, sourceCourses, tagScores = {}, onHome, onPost }) {
+export function CoursePage({
+  post,
+  sourceCourses,
+  initialCourseId,
+  isCourseSaved = () => false,
+  onToggleCourseSave = () => {},
+  tagScores = {},
+  onHome,
+  onPost,
+}) {
   const courses = useMemo(
     () => createCourses(tagScores, sourceCourses),
     [tagScores, sourceCourses],
   );
-  const [courseId, setCourseId] = useState(null);
+  const [courseId, setCourseId] = useState(initialCourseId ?? null);
   const [stepIndex, setStepIndex] = useState(0);
   const course = courses.find(({ id }) => id === courseId) ?? courses[0];
   const step = course.steps[stepIndex];
-  const savedCourseId = course.id;
-  const [savedCourseIds, setSavedCourseIds] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem(SAVED_COURSES_KEY)) ?? [];
-    } catch {
-      return [];
-    }
-  });
-  const isSaved = savedCourseIds.includes(savedCourseId);
+  const isSaved = isCourseSaved(course.id);
   const breadcrumbItems = [
     { label: '홈 피드', onClick: onHome },
     ...(post ? [{ label: post.name, onClick: onPost }] : []),
@@ -39,11 +38,7 @@ export function CoursePage({ post, sourceCourses, tagScores = {}, onHome, onPost
     );
   };
   const toggleCourseSave = () => {
-    const next = isSaved
-      ? savedCourseIds.filter((id) => id !== savedCourseId)
-      : [...savedCourseIds, savedCourseId];
-    localStorage.setItem(SAVED_COURSES_KEY, JSON.stringify(next));
-    setSavedCourseIds(next);
+    onToggleCourseSave(course.id);
   };
 
   return (

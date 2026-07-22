@@ -22,6 +22,11 @@ export async function getFirebaseAuth() {
   return getAuth(firebaseApp);
 }
 
+export async function getFirebaseStorage() {
+  const { getStorage } = await import('firebase/storage');
+  return getStorage(firebaseApp);
+}
+
 export async function initializeFirebaseAnalytics() {
   if (typeof window === 'undefined') return null;
 

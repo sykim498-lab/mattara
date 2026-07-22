@@ -7,16 +7,31 @@ const INITIAL_FORM = {
   menu: '',
   description: '',
   tags: '',
-  imageUrl: '',
 };
 
 export function RestaurantForm({ userId, onSubmit }) {
   const [form, setForm] = useState(INITIAL_FORM);
+  const [photos, setPhotos] = useState([]);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const updateField = (event) => {
     setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
+  };
+  const selectPhotos = (event) => {
+    const files = [...event.target.files].slice(0, 8);
+    const invalid = files.find((file) => !file.type.startsWith('image/') || file.size > 10 * 1024 * 1024);
+    if (invalid) {
+      setError('사진은 장당 10MB 이하의 이미지 파일만 올릴 수 있어요.');
+      return;
+    }
+    setPhotos(files.map((file) => ({ file, comment: '', lat: '', lng: '' })));
+    setError('');
+  };
+  const updatePhoto = (index, field, value) => {
+    setPhotos((current) => current.map((photo, photoIndex) =>
+      photoIndex === index ? { ...photo, [field]: value } : photo,
+    ));
   };
 
   const submit = async (event) => {
@@ -30,6 +45,10 @@ export function RestaurantForm({ userId, onSubmit }) {
       setError('전라남도 구례군에 위치한 주소만 등록할 수 있어요.');
       return;
     }
+    if (!photos.length || photos.some(({ comment }) => !comment.trim())) {
+      setError('사진을 한 장 이상 선택하고 사진별 설명을 모두 입력해 주세요.');
+      return;
+    }
     setSubmitting(true);
     setError('');
     try {
@@ -41,9 +60,10 @@ export function RestaurantForm({ userId, onSubmit }) {
         menu: form.menu.trim(),
         description: form.description.trim(),
         tags: form.tags.split(',').map((tag) => tag.trim()).filter(Boolean),
-        image_url: form.imageUrl.trim() || null,
+        photos,
       });
       setForm(INITIAL_FORM);
+      setPhotos([]);
     } catch (caughtError) {
       setError(caughtError.message);
     } finally {
@@ -64,7 +84,27 @@ export function RestaurantForm({ userId, onSubmit }) {
         <textarea name="description" value={form.description} onChange={updateField} rows="5" />
       </label>
       <label><span>태그</span><input name="tags" value={form.tags} onChange={updateField} placeholder="산수유, 로컬푸드, 자연" /></label>
-      <label><span>대표 사진 URL</span><input name="imageUrl" type="url" value={form.imageUrl} onChange={updateField} /></label>
+      <label className="photo-upload-field">
+        <span>여행 사진 * <small>최대 8장 · 각 10MB 이하</small></span>
+        <input type="file" accept="image/*" multiple onChange={selectPhotos} />
+      </label>
+      {photos.length > 0 && (
+        <div className="upload-photo-list">
+          {photos.map((photo, index) => (
+            <article className="upload-photo-row" key={`${photo.file.name}-${index}`}>
+              <div className="upload-photo-index"><b>{index + 1}</b><span>{photo.file.name}</span></div>
+              <label>
+                <span>사진 {index + 1} 설명 *</span>
+                <textarea value={photo.comment} onChange={(event) => updatePhoto(index, 'comment', event.target.value)} rows="2" placeholder="이 사진에서 꼭 봐야 할 장면을 알려주세요." />
+              </label>
+              <div className="form-grid">
+                <label><span>위도 (선택)</span><input type="number" step="any" value={photo.lat} onChange={(event) => updatePhoto(index, 'lat', event.target.value)} /></label>
+                <label><span>경도 (선택)</span><input type="number" step="any" value={photo.lng} onChange={(event) => updatePhoto(index, 'lng', event.target.value)} /></label>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
       {error && <p className="form-error" role="alert">{error}</p>}
       <button className="primary form-submit" type="submit" disabled={submitting}>
         {submitting ? '제출 중…' : '검수 요청하기'}

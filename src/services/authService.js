@@ -1,4 +1,5 @@
 import { getFirebaseAuth, getFirestoreDatabase } from './firebase';
+import { uploadPostImages } from './storageService';
 
 function authError(error) {
   const messages = {
@@ -48,12 +49,16 @@ export async function signOut() {
 }
 
 export async function submitRestaurant(values) {
+  const { photos = [], ...document } = values;
+  const submissionId = crypto.randomUUID();
+  const images = await uploadPostImages(values.user_id, submissionId, photos);
   const db = await getFirestoreDatabase();
-  const { addDoc, collection, serverTimestamp } = await import('firebase/firestore');
-  const result = await addDoc(collection(db, 'restaurant_submissions'), {
-    ...values,
+  const { doc, serverTimestamp, setDoc } = await import('firebase/firestore');
+  await setDoc(doc(db, 'restaurant_submissions', submissionId), {
+    ...document,
+    images,
     status: 'pending',
     created_at: serverTimestamp(),
   });
-  return { id: result.id, status: 'pending' };
+  return { id: submissionId, status: 'pending' };
 }

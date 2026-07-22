@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Breadcrumbs } from '../components/Breadcrumbs';
+import { CommentsSection } from '../components/CommentsSection';
 import { DetailMap } from '../components/DetailMap';
 import { PostAuthor } from '../components/PostAuthor';
 import { ShareActions } from '../components/ShareActions';
@@ -7,7 +8,7 @@ import { TagList } from '../components/TagList';
 
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
-export function DetailPage({ post, bookmarked, onHome, onOpenCourse, onToggleBookmark }) {
+export function DetailPage({ post, user, bookmarked, onHome, onOpenCourse, onToggleBookmark }) {
   const [imageIndex, setImageIndex] = useState(0);
   const image = post.images[imageIndex];
   const moveImage = (offset) => {
@@ -15,7 +16,8 @@ export function DetailPage({ post, bookmarked, onHome, onOpenCourse, onToggleBoo
       (current + offset + post.images.length) % post.images.length,
     );
   };
-  const destination = `${post.images[0].lat},${post.images[0].lng}`;
+  const mappedImage = post.images.find(({ lat, lng }) => Number.isFinite(lat) && Number.isFinite(lng));
+  const destination = mappedImage ? `${mappedImage.lat},${mappedImage.lng}` : post.address;
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${destination}`;
 
   return (
@@ -78,6 +80,7 @@ export function DetailPage({ post, bookmarked, onHome, onOpenCourse, onToggleBoo
                 </button>
               </div>
               <ShareActions post={post} />
+              <CommentsSection feedId={`post-${post.id}`} user={user} />
             </div>
           </article>
           <aside className="panel map-panel">

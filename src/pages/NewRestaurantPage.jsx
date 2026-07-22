@@ -48,7 +48,11 @@ export function NewRestaurantPage({ user, loading, onHome, onLogin }) {
         <RestaurantForm
           userId={user.uid ?? user.id}
           onSubmit={async (values) => {
-            await submitRestaurant(values);
+            await submitRestaurant({
+              ...values,
+              author_email: user.email,
+              author_name: user.displayName || user.email?.split('@')[0] || '구례 여행자',
+            });
             setSubmitted(true);
           }}
         />

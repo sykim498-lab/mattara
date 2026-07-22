@@ -39,3 +39,19 @@ export async function saveBookmark(userId, postId, saved) {
   if (!saved) return deleteDoc(reference);
   return setDoc(reference, { postId, savedAt: serverTimestamp() });
 }
+
+export async function subscribeToSavedCourses(userId, onCourses, onError) {
+  const db = await getFirestoreDatabase();
+  const { collection, onSnapshot } = await import('firebase/firestore');
+  return onSnapshot(collection(db, 'users', userId, 'savedCourses'), (snapshot) => {
+    onCourses(snapshot.docs.map((item) => item.id));
+  }, onError);
+}
+
+export async function saveCourse(userId, courseId, saved) {
+  const db = await getFirestoreDatabase();
+  const { deleteDoc, doc, serverTimestamp, setDoc } = await import('firebase/firestore');
+  const reference = doc(db, 'users', userId, 'savedCourses', String(courseId));
+  if (!saved) return deleteDoc(reference);
+  return setDoc(reference, { courseId, savedAt: serverTimestamp() });
+}

@@ -23,9 +23,10 @@ export function CourseMap({ course, activeStep, onSelectStep = () => {} }) {
     );
     L.polyline(points, {
       color: '#ea580c',
-      weight: 4,
-      dashArray: '7 10',
-      opacity: 0.72,
+      weight: 5,
+      opacity: 0.82,
+      lineCap: 'round',
+      lineJoin: 'round',
     }).addTo(map);
     map.fitBounds(L.latLngBounds(points).pad(0.25));
     mapRef.current = map;

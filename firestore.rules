@@ -64,6 +64,18 @@ service cloud.firestore {
       allow read, update, delete: if isEditor();
     }
 
+    match /feedComments/{feedId}/comments/{commentId} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 500;
+      allow update: if false;
+      allow delete: if signedIn()
+        && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
     match /appMeta/{documentId} {
       allow read: if true;
       allow write: if isAdmin();

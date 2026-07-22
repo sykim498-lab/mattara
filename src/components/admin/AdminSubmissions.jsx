@@ -4,10 +4,10 @@ import { updateSubmissionStatus } from '../../services/adminService';
 export function AdminSubmissions({ submissions }) {
   const [savingId, setSavingId] = useState('');
 
-  const review = async (id, status) => {
-    setSavingId(id);
+  const review = async (submission, status) => {
+    setSavingId(submission.documentId);
     try {
-      await updateSubmissionStatus(id, status);
+      await updateSubmissionStatus(submission, status);
     } finally {
       setSavingId('');
     }
@@ -29,8 +29,8 @@ export function AdminSubmissions({ submissions }) {
                 <p>{item.address ?? '주소 미입력'} · {item.description ?? item.reason ?? '설명 없음'}</p>
               </div>
               <div className="row-actions">
-                <button type="button" disabled={savingId === item.documentId} onClick={() => review(item.documentId, 'approved')}>승인</button>
-                <button className="danger" type="button" disabled={savingId === item.documentId} onClick={() => review(item.documentId, 'rejected')}>반려</button>
+                <button type="button" disabled={savingId === item.documentId} onClick={() => review(item, 'approved')}>승인·피드 발행</button>
+                <button className="danger" type="button" disabled={savingId === item.documentId} onClick={() => review(item, 'rejected')}>반려</button>
               </div>
             </article>
           ))}

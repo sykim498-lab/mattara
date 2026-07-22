@@ -1,18 +1,24 @@
 import { useMemo, useState } from 'react';
 import { FeedCard } from '../components/FeedCard';
+import { CourseFeedCard } from '../components/CourseFeedCard';
 import { filterPosts } from '../features/feed/filterPosts';
 
 export function HomePage({
   posts,
+  courses = [],
+  user,
   categories,
   recommendedPosts = [],
   hasRecommendationHistory = false,
   bookmarkedIds = new Set(),
   onOpenCourses = () => {},
+  onOpenCourse = onOpenCourses,
   onOpenPost,
   onResetRecommendations = () => {},
   onSelectTags = () => {},
   onToggleBookmark = () => {},
+  onToggleCourseSave = () => {},
+  savedCourseIds = new Set(),
 }) {
   const [selectedCategoryId, setSelectedCategoryId] = useState(
     () => sessionStorage.getItem('mattara.gurye.selected-category') ?? 'all',
@@ -50,6 +56,26 @@ export function HomePage({
           </p>
         </div>
 
+        <section className="course-feed-section" aria-labelledby="course-feed-title">
+          <div className="course-feed-heading">
+            <p className="eyebrow">8 LOCAL ROUTES · ZERO SEARCH</p>
+            <h2 id="course-feed-title">스크롤로 바로 만나는 구례 여행 코스</h2>
+            <p>사진을 넘기며 장소별 설명을 보고, 마음에 드는 동선을 바로 저장하세요.</p>
+          </div>
+          <div className="course-feed">
+            {courses.map((course) => (
+              <CourseFeedCard
+                course={course}
+                user={user}
+                saved={savedCourseIds.has(course.id)}
+                onOpen={onOpenCourse}
+                onToggleSave={onToggleCourseSave}
+                key={course.id}
+              />
+            ))}
+          </div>
+        </section>
+
         {hasRecommendationHistory && (
           <section className="recommendation-section" aria-labelledby="recommendation-title">
             <div className="recommendation-heading">
@@ -64,6 +90,7 @@ export function HomePage({
               {recommendedPosts.slice(0, 3).map((post) => (
                 <FeedCard
                   post={post}
+                  user={user}
                   bookmarked={bookmarkedIds.has(post.id)}
                   onOpen={onOpenPost}
                   onToggleBookmark={onToggleBookmark}
@@ -107,6 +134,7 @@ export function HomePage({
             visiblePosts.map((post) => (
               <FeedCard
                 post={post}
+                user={user}
                 bookmarked={bookmarkedIds.has(post.id)}
                 onOpen={onOpenPost}
                 onToggleBookmark={onToggleBookmark}
@@ -119,14 +147,6 @@ export function HomePage({
               이 카테고리의 새로운 맛집을 준비 중이에요.
             </div>
           )}
-        </div>
-        <div className="course-banner home-course-banner">
-          <div>
-            <p className="eyebrow">8 LOCAL ROUTES · GURYE ONLY</p>
-            <h2>계획 없이 떠나는 구례 맞춤 코스</h2>
-            <p>취향 태그를 바탕으로 프랜차이즈 없는 구례 로컬 코스를 먼저 보여드려요.</p>
-          </div>
-          <button type="button" onClick={onOpenCourses}>8개 맞춤 코스 보기 →</button>
         </div>
       </div>
     </section>

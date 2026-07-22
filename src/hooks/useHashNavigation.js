@@ -2,20 +2,23 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 function parseHash(hash) {
   const value = hash.replace(/^#\/?/, '');
-  if (!value || value === 'home') return { view: 'home', postId: null };
+  if (!value || value === 'home') return { view: 'home', postId: null, courseId: null };
   if (['admin', 'login', 'signup', 'new', 'saved'].includes(value)) {
-    return { view: value, postId: null };
+    return { view: value, postId: null, courseId: null };
   }
 
   const [view, rawId] = value.split('/');
   if (view === 'course' && rawId == null) {
-    return { view: 'course', postId: null };
+    return { view: 'course', postId: null, courseId: null };
+  }
+  if (view === 'course' && rawId) {
+    return { view: 'course', postId: null, courseId: decodeURIComponent(rawId) };
   }
   const postId = Number(rawId);
-  if (['post', 'course'].includes(view) && Number.isInteger(postId)) {
-    return { view, postId };
+  if (view === 'post' && Number.isInteger(postId)) {
+    return { view, postId, courseId: null };
   }
-  return { view: 'home', postId: null };
+  return { view: 'home', postId: null, courseId: null };
 }
 
 export function useHashNavigation() {
@@ -32,8 +35,8 @@ export function useHashNavigation() {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [route]);
 
-  const navigate = useCallback((view, postId) => {
-    const nextHash = `#/${postId == null ? view : `${view}/${postId}`}`;
+  const navigate = useCallback((view, resourceId) => {
+    const nextHash = `#/${resourceId == null ? view : `${view}/${encodeURIComponent(resourceId)}`}`;
     const currentHash = location.hash || '#/home';
     if (currentHash === nextHash) {
       window.scrollTo({ top: 0, behavior: 'smooth' });

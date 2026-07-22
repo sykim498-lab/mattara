@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { PostAuthor } from './PostAuthor';
+import { CommentsSection } from './CommentsSection';
 import { ShareActions } from './ShareActions';
 import { TagList } from './TagList';
 
@@ -8,6 +9,7 @@ const numberFormatter = new Intl.NumberFormat('ko-KR');
 export function FeedCard({
   post,
   bookmarked = false,
+  user,
   onOpen,
   onToggleBookmark = () => {},
 }) {
@@ -103,13 +105,12 @@ export function FeedCard({
           <div className="card-title">
             <h2>{post.name}</h2>
           </div>
-          <p>{post.caption}</p>
+          <p aria-live="polite">{currentImage.comment ?? post.caption}</p>
           <TagList tags={post.tags} />
         </div>
       </div>
       <div className="social card-actions">
         <span>♥ {numberFormatter.format(post.likes)}</span>
-        <span>☵ 댓글 {post.comments}</span>
         <button
           className={`bookmark-button${bookmarked ? ' active' : ''}`}
           type="button"
@@ -121,6 +122,7 @@ export function FeedCard({
         </button>
         <ShareActions post={post} compact />
       </div>
+      <CommentsSection feedId={`post-${post.id}`} user={user} />
     </article>
   );
 }

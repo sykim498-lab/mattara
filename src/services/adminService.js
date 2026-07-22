@@ -51,11 +51,36 @@ export async function promoteLegacyMembers(userIds) {
   await batch.commit();
 }
 
-export async function updateSubmissionStatus(submissionId, status) {
+export async function updateSubmissionStatus(submission, status) {
   const db = await getFirestoreDatabase();
-  const { doc, serverTimestamp, updateDoc } = await import('firebase/firestore');
-  await updateDoc(doc(db, 'restaurant_submissions', submissionId), {
+  const { doc, serverTimestamp, writeBatch } = await import('firebase/firestore');
+  const batch = writeBatch(db);
+  const reference = doc(db, 'restaurant_submissions', submission.documentId);
+  batch.update(reference, {
     status,
     reviewedAt: serverTimestamp(),
   });
+  if (status === 'approved') {
+    const postId = Date.now();
+    batch.set(doc(db, 'posts', String(postId)), {
+      id: postId,
+      name: submission.name,
+      region: submission.region,
+      address: submission.address,
+      menu: submission.menu,
+      caption: submission.description,
+      tags: submission.tags ?? [],
+      images: submission.images ?? [],
+      author: submission.author_name ?? '구례 여행자',
+      handle: submission.author_email ? `@${submission.author_email.split('@')[0]}` : '@gurye_local',
+      avatar: submission.images?.[0]?.url ?? '',
+      rating: 0,
+      likes: 0,
+      comments: 0,
+      published: true,
+      submissionId: submission.documentId,
+      createdAt: serverTimestamp(),
+    });
+  }
+  await batch.commit();
 }
