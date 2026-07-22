@@ -1,4 +1,4 @@
-import { filterGuryePosts } from '../features/region/gurye';
+import { filterGuryePosts } from '../features/region/gurye.js';
 
 const photo = (id, width = 1200) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=85`;

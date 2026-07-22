@@ -8,11 +8,12 @@ import { SavedPage } from './pages/SavedPage';
 import { Footer } from './components/Footer';
 import { BackButton } from './components/BackButton';
 import { Header } from './components/Header';
-import { posts } from './data/posts';
+import { posts as fallbackPosts } from './data/posts';
 import { useAuth } from './hooks/useAuth';
 import { useBookmarks } from './hooks/useBookmarks';
 import { useCategories } from './hooks/useCategories';
 import { useHashNavigation } from './hooks/useHashNavigation';
+import { useFirestorePosts } from './hooks/useFirestorePosts';
 import { useRecommendations } from './hooks/useRecommendations';
 import { signOut } from './services/authService';
 
@@ -23,6 +24,7 @@ const CoursePage = lazy(() => import('./pages/CoursePage').then((module) => ({
 export default function App() {
   const categoryStore = useCategories();
   const auth = useAuth();
+  const posts = useFirestorePosts(fallbackPosts);
   const bookmarkStore = useBookmarks(auth.user);
   const {
     recommendedPosts,

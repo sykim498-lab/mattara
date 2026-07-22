@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import 'leaflet/dist/leaflet.css';
 import App from './App';
+import { initializeFirebaseAnalytics } from './services/firebase';
 import './styles/base.css';
 import './styles/feed.css';
 import './styles/carousel.css';
@@ -15,9 +16,7 @@ import './styles/auth.css';
 import './styles/motion.css';
 import './styles/responsive.css';
 
-void import('./services/firebase').then(({ initializeFirebaseAnalytics }) =>
-  initializeFirebaseAnalytics(),
-);
+void initializeFirebaseAnalytics();
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

@@ -1,5 +1,5 @@
 export function Header({ user, onAdmin, onAuth, onHome, onNewPost, onSaved, onSignOut }) {
-  const accountName = user?.user_metadata?.username ?? user?.email?.split('@')[0];
+  const accountName = user?.displayName ?? user?.email?.split('@')[0];
   return (
     <header className="topbar">
       <div className="shell nav">

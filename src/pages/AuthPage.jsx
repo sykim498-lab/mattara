@@ -2,14 +2,8 @@ import { useState } from 'react';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import {
   signInWithPassword,
-  signInWithSocial,
   signUpWithPassword,
 } from '../services/authService';
-
-const PROVIDERS = [
-  { id: 'kakao', label: '카카오로 계속하기', icon: '💬', className: 'kakao' },
-  { id: 'google', label: 'Google로 계속하기', icon: 'G', className: 'google' },
-];
 
 export function AuthPage({ mode, configured, onHome, onSwitchMode }) {
   const [identifier, setIdentifier] = useState('');
@@ -45,15 +39,6 @@ export function AuthPage({ mode, configured, onHome, onSwitchMode }) {
     }
   };
 
-  const continueWith = async (provider) => {
-    setError('');
-    try {
-      await signInWithSocial(provider);
-    } catch (caughtError) {
-      setError(caughtError.message);
-    }
-  };
-
   return (
     <section className="view auth-view">
       <div className="shell auth-shell">
@@ -64,8 +49,8 @@ export function AuthPage({ mode, configured, onHome, onSwitchMode }) {
           <h1>{isSignUp ? '맛있는 기록을 시작해요' : '다시 만나 반가워요'}</h1>
           <p className="auth-description">
             {isSignUp
-              ? '아이디와 비밀번호를 등록하고 맛있는 기록을 시작하세요.'
-              : '아이디와 비밀번호로 로그인하면 이전 세션을 이어갈 수 있어요.'}
+              ? '이메일과 비밀번호를 등록하고 맛있는 기록을 시작하세요.'
+              : 'Firebase 계정으로 로그인하면 여러 기기에서 기록을 이어갈 수 있어요.'}
           </p>
           <form className="credential-form" onSubmit={submitCredentials}>
             <label htmlFor="auth-identifier">{configured ? '이메일' : '아이디'}</label>
@@ -110,20 +95,6 @@ export function AuthPage({ mode, configured, onHome, onSwitchMode }) {
           </form>
           {message && <p className="form-success" role="status">{message}</p>}
           {error && <p className="form-error" role="alert">{error}</p>}
-          <div className="auth-divider"><span>또는</span></div>
-          <div className="social-login-list">
-            {PROVIDERS.map((provider) => (
-              <button
-                className={`social-login ${provider.className}`}
-                type="button"
-                onClick={() => continueWith(provider.id)}
-                key={provider.id}
-              >
-                <span aria-hidden="true">{provider.icon}</span>
-                {provider.label}
-              </button>
-            ))}
-          </div>
           {!configured && (
             <p className="config-notice">
               현재 로컬 체험 모드입니다. 계정과 세션은 이 브라우저에만 저장됩니다.

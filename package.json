@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
+    "seed:firestore": "node scripts/seed-firestore.mjs",
+    "verify:firestore": "node scripts/verify-firestore.mjs",
     "test": "vitest run",
     "check:lines": "node scripts/check-lines.mjs",
     "check": "npm run check:lines && npm run lint && npm run test && npm run build"

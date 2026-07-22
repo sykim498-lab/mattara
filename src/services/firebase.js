@@ -17,6 +17,11 @@ export async function getFirestoreDatabase() {
   return getFirestore(firebaseApp);
 }
 
+export async function getFirebaseAuth() {
+  const { getAuth } = await import('firebase/auth');
+  return getAuth(firebaseApp);
+}
+
 export async function initializeFirebaseAnalytics() {
   if (typeof window === 'undefined') return null;
 

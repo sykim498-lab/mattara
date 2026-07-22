@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { saveBookmark, subscribeToBookmarks } from '../services/firestoreService';
 
-function storageKey(user) {
-  return `mattara.bookmarks.v1.${user?.id ?? 'guest'}`;
+function storageKey(userId) {
+  return `mattara.bookmarks.v1.${userId ?? 'guest'}`;
 }
 
 function readBookmarks(key) {
@@ -14,28 +15,46 @@ function readBookmarks(key) {
 }
 
 export function useBookmarks(user) {
-  const key = storageKey(user);
+  const userId = user?.uid;
+  const key = storageKey(userId);
   const [store, setStore] = useState(() => ({ key, ids: readBookmarks(key) }));
   const bookmarkIds = store.key === key ? store.ids : readBookmarks(key);
 
   useEffect(() => {
-    const sync = (event) => {
-      if (event.key === key) setStore({ key, ids: readBookmarks(key) });
+    if (!userId) {
+      const sync = (event) => {
+        if (event.key === key) setStore({ key, ids: readBookmarks(key) });
+      };
+      window.addEventListener('storage', sync);
+      return () => window.removeEventListener('storage', sync);
+    }
+
+    let active = true;
+    let unsubscribe = () => {};
+    subscribeToBookmarks(userId, (ids) => {
+      if (active) setStore({ key, ids });
+    }, () => {}).then((nextUnsubscribe) => {
+      if (active) unsubscribe = nextUnsubscribe;
+      else nextUnsubscribe();
+    }).catch(() => {});
+    return () => {
+      active = false;
+      unsubscribe();
     };
-    window.addEventListener('storage', sync);
-    return () => window.removeEventListener('storage', sync);
-  }, [key]);
+  }, [key, userId]);
 
   const toggleBookmark = useCallback((postId) => {
-    setStore((currentStore) => {
-      const current = currentStore.key === key ? currentStore.ids : readBookmarks(key);
-      const next = current.includes(postId)
-        ? current.filter((id) => id !== postId)
-        : [...current, postId];
+    const saved = bookmarkIds.includes(postId);
+    const next = saved
+      ? bookmarkIds.filter((id) => id !== postId)
+      : [...bookmarkIds, postId];
+    setStore({ key, ids: next });
+    if (userId) {
+      saveBookmark(userId, postId, !saved).catch(() => setStore({ key, ids: bookmarkIds }));
+    } else {
       localStorage.setItem(key, JSON.stringify(next));
-      return { key, ids: next };
-    });
-  }, [key]);
+    }
+  }, [bookmarkIds, key, userId]);
 
   const bookmarkedIds = useMemo(() => new Set(bookmarkIds), [bookmarkIds]);
   return { bookmarkIds, bookmarkedIds, toggleBookmark };

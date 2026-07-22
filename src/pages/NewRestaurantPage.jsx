@@ -46,7 +46,7 @@ export function NewRestaurantPage({ user, loading, onHome, onLogin }) {
           <p>직접 다녀온 곳의 생생한 이야기를 남겨 주세요. 검수 후 피드에 공개됩니다.</p>
         </div>
         <RestaurantForm
-          userId={user.id}
+          userId={user.uid ?? user.id}
           onSubmit={async (values) => {
             await submitRestaurant(values);
             setSubmitted(true);
