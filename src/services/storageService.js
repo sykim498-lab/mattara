@@ -15,9 +15,16 @@ export async function uploadPostImages(userId, submissionId, photos) {
     });
     return {
       url: await getDownloadURL(snapshot.ref),
-      comment: photo.comment.trim(),
+      title: photo.title?.trim() || '',
+      description: photo.description?.trim() || photo.comment?.trim() || '',
+      comment: photo.description?.trim() || photo.comment?.trim() || '',
+      address: photo.address?.trim() || '',
       lat: Number(photo.lat) || null,
       lng: Number(photo.lng) || null,
+      placeId: photo.placeId || '',
+      googleMapsUri: photo.googleMapsUri || '',
+      website: photo.website || '',
+      placeSource: photo.placeSource || '',
       order: index,
     };
   }));

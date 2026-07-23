@@ -47,9 +47,16 @@ export async function embedPostImages(photos, description) {
   const maxLength = Math.max(65000, Math.floor(680000 / photos.length));
   return Promise.all(photos.map(async (photo, index) => ({
     url: await compressImageFile(photo.file, maxLength),
-    comment: photo.comment.trim() || description,
+    title: photo.title?.trim() || '',
+    description: photo.description?.trim() || photo.comment?.trim() || description,
+    comment: photo.description?.trim() || photo.comment?.trim() || description,
+    address: photo.address?.trim() || '',
     lat: Number(photo.lat) || null,
     lng: Number(photo.lng) || null,
+    placeId: photo.placeId || '',
+    googleMapsUri: photo.googleMapsUri || '',
+    website: photo.website || '',
+    placeSource: photo.placeSource || '',
     order: index,
   })));
 }

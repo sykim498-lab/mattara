@@ -48,9 +48,25 @@ export function DetailMap({ post, imageIndex }) {
     const map = mapRef.current;
     const marker = markerRef.current;
     if (!map || !marker || !Number.isFinite(image.lat) || !Number.isFinite(image.lng)) return;
+    const popup = document.createElement('div');
+    const heading = document.createElement('strong');
+    heading.textContent = image.title || image.name || post.name;
+    popup.appendChild(heading);
+    const address = image.address || post.address;
+    if (address) {
+      const addressNode = document.createElement('div');
+      addressNode.textContent = address;
+      popup.appendChild(addressNode);
+    }
+    const description = image.description || image.comment;
+    if (description) {
+      const descriptionNode = document.createElement('div');
+      descriptionNode.textContent = description;
+      popup.appendChild(descriptionNode);
+    }
     marker
       .setLatLng([image.lat, image.lng])
-      .bindPopup(`<b>${post.name}</b><br>사진 ${imageIndex + 1}의 위치`)
+      .bindPopup(popup)
       .openPopup();
     map.flyTo([image.lat, image.lng], 16, { duration: 0.65 });
   }, [imageIndex, post]);

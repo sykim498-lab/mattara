@@ -24,6 +24,7 @@ export function RestaurantForm({ userId, onSubmit }) {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [lookingUp, setLookingUp] = useState(false);
+  const [photoLookupIndex, setPhotoLookupIndex] = useState(null);
   const [lookupMessage, setLookupMessage] = useState('');
 
   const updateField = (event) => {
@@ -38,7 +39,10 @@ export function RestaurantForm({ userId, onSubmit }) {
     }
     setPhotos(files.map((file) => ({
       file,
+      title: '',
+      description: '',
       comment: '',
+      address: form.address,
       lat: form.lat,
       lng: form.lng,
     })));
@@ -48,6 +52,32 @@ export function RestaurantForm({ userId, onSubmit }) {
     setPhotos((current) => current.map((photo, photoIndex) =>
       photoIndex === index ? { ...photo, [field]: value } : photo,
     ));
+  };
+  const lookupPhotoPlace = async (index) => {
+    const photo = photos[index];
+    if (!photo?.title?.trim() || !photo?.address?.trim()) {
+      setError('사진별 장소 제목과 주소를 먼저 입력해 주세요.');
+      return;
+    }
+    setPhotoLookupIndex(index);
+    setError('');
+    try {
+      const details = await lookupPlaceDetails(photo.title, photo.address);
+      setPhotos((current) => current.map((item, photoIndex) => photoIndex === index ? {
+        ...item,
+        address: details.address || item.address,
+        lat: details.lat ?? item.lat,
+        lng: details.lng ?? item.lng,
+        placeId: details.placeId,
+        googleMapsUri: details.googleMapsUri,
+        website: details.website,
+        placeSource: details.source,
+      } : item));
+    } catch (lookupError) {
+      setError(lookupError.message);
+    } finally {
+      setPhotoLookupIndex(null);
+    }
   };
   const lookupPlace = async () => {
     setLookingUp(true);
@@ -94,7 +124,9 @@ export function RestaurantForm({ userId, onSubmit }) {
       setError('전라남도 구례군에 위치한 주소만 등록할 수 있어요.');
       return;
     }
-    if (!photos.length || photos.some(({ comment }) => !comment.trim())) {
+    if (!photos.length || photos.some(({ title, description, address }) => (
+      !title?.trim() || !description?.trim() || !address?.trim()
+    ))) {
       setError('사진을 한 장 이상 선택하고 사진별 설명을 모두 입력해 주세요.');
       return;
     }
@@ -159,8 +191,19 @@ export function RestaurantForm({ userId, onSubmit }) {
             <article className="upload-photo-row" key={`${photo.file.name}-${index}`}>
               <div className="upload-photo-index"><b>{index + 1}</b><span>{photo.file.name}</span></div>
               <label>
+                <span>사진 {index + 1} 장소 제목 *</span>
+                <input value={photo.title} onChange={(event) => updatePhoto(index, 'title', event.target.value)} placeholder="예: 화엄사 대웅전" />
+              </label>
+              <label>
+                <span>사진별 주소 *</span>
+                <input value={photo.address} onChange={(event) => updatePhoto(index, 'address', event.target.value)} placeholder="장소의 상세 주소" />
+              </label>
+              <button className="ghost photo-place-lookup" type="button" onClick={() => lookupPhotoPlace(index)} disabled={photoLookupIndex === index}>
+                {photoLookupIndex === index ? '장소 확인 중' : '이 사진 장소 검색'}
+              </button>
+              <label>
                 <span>사진 {index + 1} 설명 *</span>
-                <textarea value={photo.comment} onChange={(event) => updatePhoto(index, 'comment', event.target.value)} rows="2" placeholder="이 사진에서 꼭 봐야 할 장면을 알려주세요." />
+                <textarea value={photo.description} onChange={(event) => updatePhoto(index, 'description', event.target.value)} rows="3" placeholder="이 장소와 사진에서 이용자가 알아야 할 내용을 입력하세요." />
               </label>
               <div className="form-grid">
                 <label><span>위도 (선택)</span><input type="number" step="any" value={photo.lat} onChange={(event) => updatePhoto(index, 'lat', event.target.value)} /></label>

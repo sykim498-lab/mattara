@@ -8,11 +8,20 @@ const UPLOAD_TIMEOUT_MS = 10000;
 const PUBLISH_TIMEOUT_MS = 15000;
 
 function defaultImages(photos, description) {
+  const photo = photos[0] || {};
+  const photoDescription = photo.description?.trim() || photo.comment?.trim() || description;
   return [{
     url: FALLBACK_POST_IMAGE,
-    comment: photos[0]?.comment?.trim() || description,
-    lat: Number(photos[0]?.lat) || null,
-    lng: Number(photos[0]?.lng) || null,
+    title: photo.title?.trim() || '',
+    description: photoDescription,
+    comment: photoDescription,
+    address: photo.address?.trim() || '',
+    lat: Number(photo.lat) || null,
+    lng: Number(photo.lng) || null,
+    placeId: photo.placeId || '',
+    googleMapsUri: photo.googleMapsUri || '',
+    website: photo.website || '',
+    placeSource: photo.placeSource || '',
     order: 0,
   }];
 }

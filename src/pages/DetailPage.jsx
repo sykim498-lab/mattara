@@ -27,30 +27,33 @@ export function DetailPage({
   onToggleLike = () => {},
 }) {
   const [imageIndex, setImageIndex] = useState(0);
-  const [livePlace, setLivePlace] = useState(null);
+  const [livePlaceState, setLivePlaceState] = useState({ key: '', details: null });
   const image = post.images[imageIndex];
+  const imagePlaceName = image.title || post.name;
+  const imagePlaceAddress = image.address || post.address;
+  const imagePlaceKey = `${post.id}:${imageIndex}:${imagePlaceName}:${imagePlaceAddress}`;
+  const livePlace = livePlaceState.key === imagePlaceKey ? livePlaceState.details : null;
   const moveImage = (offset) => {
     setImageIndex((current) =>
       (current + offset + post.images.length) % post.images.length,
     );
   };
-  const mappedImage = post.images.find(({ lat, lng }) => Number.isFinite(lat) && Number.isFinite(lng));
   const place = { ...post, ...livePlace };
   const directionsUrl = buildDirectionsUrl({
-    name: post.name,
-    address: post.address,
-    lat: livePlace?.lat ?? mappedImage?.lat,
-    lng: livePlace?.lng ?? mappedImage?.lng,
-    placeId: livePlace?.placeId || post.placeId,
+    name: imagePlaceName,
+    address: imagePlaceAddress,
+    lat: livePlace?.lat ?? image.lat,
+    lng: livePlace?.lng ?? image.lng,
+    placeId: livePlace?.placeId || image.placeId || post.placeId,
   });
 
   useEffect(() => {
     let active = true;
-    lookupPlaceDetails(post.name, post.address)
-      .then((details) => { if (active) setLivePlace(details); })
+    lookupPlaceDetails(imagePlaceName, imagePlaceAddress)
+      .then((details) => { if (active) setLivePlaceState({ key: imagePlaceKey, details }); })
       .catch(() => {});
     return () => { active = false; };
-  }, [post.address, post.id, post.name]);
+  }, [imagePlaceAddress, imagePlaceKey, imagePlaceName]);
 
   return (
     <section className="view">
@@ -87,7 +90,11 @@ export function DetailPage({
             </div>
             <div className="image-comment" aria-live="polite" aria-atomic="true">
               <span>{imageIndex + 1} / {post.images.length}</span>
-              <p>{image.comment ?? `${post.name}의 ${imageIndex + 1}번째 사진이에요.`}</p>
+              <div>
+                {image.title && <strong>{image.title}</strong>}
+                <p>{image.description || image.comment || `${post.name} ${imageIndex + 1}번째 사진`}</p>
+                {imagePlaceAddress && <small>{imagePlaceAddress}</small>}
+              </div>
             </div>
             <div className="detail-copy">
               <PostAuthor post={post} profile={authorProfile} showRegion />
@@ -130,13 +137,13 @@ export function DetailPage({
             <DetailMap post={post} imageIndex={imageIndex} />
             <div className="place-info">
               <p className="eyebrow">PLACE INFORMATION</p>
-              <h2>{post.name}</h2>
-              <p className="address">⌖ {post.address}</p>
+              <h2>{imagePlaceName}</h2>
+              <p className="address">⌖ {imagePlaceAddress}</p>
               <div className="info-list">
-                <div className="info-row"><b>영업시간</b><span>{place.hours || '방문 전 운영시간 확인'}</span></div>
-                <div className="info-row"><b>전화번호</b><span>{place.phone || '매장 문의'}</span></div>
+                <div className="info-row"><b>영업시간</b><span>{place.hours || image.hours || post.hours || '방문 전 운영시간 확인'}</span></div>
+                <div className="info-row"><b>전화번호</b><span>{place.phone || image.phone || post.phone || '매장 문의'}</span></div>
                 <div className="info-row"><b>대표 메뉴</b><span>{post.menu}</span></div>
-                {place.website && <div className="info-row"><b>웹사이트</b><a href={place.website} target="_blank" rel="noreferrer">방문하기</a></div>}
+                {(place.website || image.website || post.website) && <div className="info-row"><b>웹사이트</b><a href={place.website || image.website || post.website} target="_blank" rel="noreferrer">방문하기</a></div>}
               </div>
               {(livePlace?.source || post.placeSource) && (
                 <small className="place-source">장소 정보: {livePlace?.source || post.placeSource}</small>

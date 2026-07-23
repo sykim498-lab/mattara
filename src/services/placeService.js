@@ -48,6 +48,7 @@ async function lookupGooglePlace(name, address) {
   const place = places[0];
   if (!place) throw new Error('Google Places에서 일치하는 장소를 찾지 못했습니다.');
   return {
+    address: place.formattedAddress ?? '',
     hours: place.regularOpeningHours?.weekdayDescriptions?.join(' / ') ?? '',
     phone: place.nationalPhoneNumber ?? '',
     website: place.websiteURI ?? '',
@@ -78,6 +79,7 @@ async function lookupOpenStreetMap(name, address) {
   if (!place) throw new Error('일치하는 공개 장소 정보를 찾지 못했습니다.');
   const tags = place.extratags ?? {};
   return {
+    address: place.display_name ?? '',
     hours: firstValue(tags, ['opening_hours']),
     phone: firstValue(tags, ['phone', 'contact:phone', 'telephone']),
     website: firstValue(tags, ['website', 'contact:website']),

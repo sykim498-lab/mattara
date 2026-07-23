@@ -85,3 +85,9 @@
   font-size: 12px;
   line-height: 1.6;
 }
+
+.image-comment > div { min-width: 0; }
+.image-comment strong,
+.image-comment small { display: block; }
+.image-comment strong { margin-bottom: 2px; color: var(--ink); font-size: 13px; }
+.image-comment small { margin-top: 3px; color: #8b766a; font-size: 11px; }
