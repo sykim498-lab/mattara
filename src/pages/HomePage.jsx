@@ -8,13 +8,10 @@ export function HomePage({
   courses = [],
   user,
   categories,
-  recommendedPosts = [],
-  hasRecommendationHistory = false,
   bookmarkedIds = new Set(),
   onOpenCourses = () => {},
   onOpenCourse = onOpenCourses,
   onOpenPost,
-  onResetRecommendations = () => {},
   onSelectTags = () => {},
   onToggleBookmark = () => {},
   onToggleCourseSave = () => {},
@@ -75,31 +72,6 @@ export function HomePage({
             ))}
           </div>
         </section>
-
-        {hasRecommendationHistory && (
-          <section className="recommendation-section" aria-labelledby="recommendation-title">
-            <div className="recommendation-heading">
-              <div>
-                <p className="eyebrow">FOR YOUR TASTE</p>
-                <h2 id="recommendation-title">취향에 맞는 구례 숨은 명소</h2>
-                <p>선택한 태그와 조회·북마크 행동을 합산해 추천했어요.</p>
-              </div>
-              <button type="button" onClick={onResetRecommendations}>추천 기록 초기화</button>
-            </div>
-            <div className="grid recommendation-grid">
-              {recommendedPosts.slice(0, 3).map((post) => (
-                <FeedCard
-                  post={post}
-                  user={user}
-                  bookmarked={bookmarkedIds.has(post.id)}
-                  onOpen={onOpenPost}
-                  onToggleBookmark={onToggleBookmark}
-                  key={`recommended-${post.id}`}
-                />
-              ))}
-            </div>
-          </section>
-        )}
 
         <div className="filters" aria-label="맛집 카테고리">
           {categories.map((category) => (

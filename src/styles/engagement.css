@@ -1,11 +1,3 @@
-.recommendation-section {
-  margin: 0 0 34px;
-  border: 1px solid #f3ddcd;
-  border-radius: 30px;
-  padding: 25px;
-  background: linear-gradient(135deg, #fff8ee, #fffdf9);
-}
-
 .recommendation-heading,
 .saved-heading {
   display: flex;
@@ -39,8 +31,102 @@
   font-weight: 700;
 }
 
-.recommendation-grid .feed-card {
+.related-courses {
+  margin: 30px 0 0;
+  border: 1px solid #f3ddcd;
+  border-radius: 30px;
+  padding: 25px;
+  background: linear-gradient(135deg, #fff8ee, #fffdf9);
+}
+
+.related-course-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.related-course-card {
+  overflow: hidden;
+  border: 1px solid #f2e3d7;
+  border-radius: 20px;
+  background: white;
   box-shadow: 0 8px 24px rgba(92, 50, 21, 0.06);
+}
+
+.related-course-photo {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 0;
+  padding: 0;
+  background: #eee7e1;
+  color: white;
+  text-align: left;
+}
+
+.related-course-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.related-course-photo:hover img {
+  transform: scale(1.04);
+}
+
+.related-course-photo span,
+.related-course-photo strong {
+  position: absolute;
+  z-index: 1;
+  border-radius: 9px;
+  background: rgba(28, 21, 17, 0.76);
+  backdrop-filter: blur(8px);
+}
+
+.related-course-photo span {
+  top: 12px;
+  left: 12px;
+  padding: 6px 8px;
+  font-size: 11px;
+}
+
+.related-course-photo strong {
+  right: 12px;
+  bottom: 12px;
+  padding: 7px 9px;
+  font-size: 12px;
+}
+
+.related-course-copy {
+  padding: 15px;
+}
+
+.related-course-copy h3,
+.related-course-copy p {
+  margin: 0 0 9px;
+}
+
+.related-course-copy h3 {
+  font-size: 17px;
+}
+
+.related-course-copy p {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+@media (max-width: 760px) {
+  .related-course-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .feed-search {

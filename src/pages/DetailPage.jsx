@@ -3,12 +3,23 @@ import { Breadcrumbs } from '../components/Breadcrumbs';
 import { CommentsSection } from '../components/CommentsSection';
 import { DetailMap } from '../components/DetailMap';
 import { PostAuthor } from '../components/PostAuthor';
+import { RelatedCourses } from '../components/RelatedCourses';
 import { ShareActions } from '../components/ShareActions';
 import { TagList } from '../components/TagList';
 
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
-export function DetailPage({ post, user, bookmarked, onHome, onOpenCourse, onToggleBookmark }) {
+export function DetailPage({
+  post,
+  user,
+  bookmarked,
+  relatedCourses = [],
+  hasRecommendationHistory = false,
+  onHome,
+  onOpenCourse,
+  onResetRecommendations = () => {},
+  onToggleBookmark,
+}) {
   const [imageIndex, setImageIndex] = useState(0);
   const image = post.images[imageIndex];
   const moveImage = (offset) => {
@@ -100,14 +111,13 @@ export function DetailPage({ post, user, bookmarked, onHome, onOpenCourse, onTog
             </div>
           </aside>
         </div>
-        <div className="course-banner">
-          <div>
-            <p className="eyebrow">MAT-TARA CURATION</p>
-            <h2>이 장소에서 시작하는 구례 하루</h2>
-            <p>구례군 안에서만 이어지는 맛집·자연·문화 동선을 준비했어요.</p>
-          </div>
-          <button type="button" onClick={onOpenCourse}>구례 맞춤 코스 보기 →</button>
-        </div>
+        <RelatedCourses
+          post={post}
+          courses={relatedCourses}
+          hasPreferenceHistory={hasRecommendationHistory}
+          onOpenCourse={onOpenCourse}
+          onResetPreferences={onResetRecommendations}
+        />
       </div>
     </section>
   );

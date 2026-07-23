@@ -1,4 +1,4 @@
-import { filterGuryePosts } from '../features/region/gurye';
+import { isGuryeCourse } from '../features/region/gurye';
 
 const COOKIE_NAME = 'mattara_preferences_v1';
 const TAG_SCORES_KEY = 'mattara.gurye.tag-scores.v1';
@@ -75,21 +75,20 @@ export function recordTagSelection(tags) {
   window.dispatchEvent(new Event(PREFERENCE_EVENT));
 }
 
-export function rankPostsForUser(posts, preferences = readPreferences()) {
-  const recentOrder = new Map(preferences.recentViews.map((id, index) => [id, index]));
-  return filterGuryePosts(posts)
-    .map((post) => {
-      const tagScore = post.tags.reduce(
-        (score, tag) => score + (preferences.tagScores[tag] ?? 0),
+export function rankRelatedCourses(courses, post, preferences = readPreferences()) {
+  const postTags = new Set(post?.tags ?? []);
+  return courses
+    .filter(isGuryeCourse)
+    .map((course) => {
+      const relatedTagCount = course.tags.filter((tag) => postTags.has(tag)).length;
+      const preferenceScore = course.tags.reduce(
+        (score, tag) => score + Math.min(preferences.tagScores[tag] ?? 0, 6),
         0,
       );
-      const regionScore = preferences.regionScores[post.region] ?? 0;
-      const alreadyViewedPenalty = recentOrder.has(post.id) ? 2 : 0;
-      const hiddenBoost = post.tags.includes('숨은명소') && tagScore > 0 ? 3 : 0;
-      return { post, score: tagScore + regionScore * 2 + hiddenBoost - alreadyViewedPenalty };
+      return { course, score: relatedTagCount * 12 + Math.min(preferenceScore, 18) };
     })
-    .sort((a, b) => b.score - a.score || b.post.likes - a.post.likes)
-    .map(({ post }) => post);
+    .sort((a, b) => b.score - a.score || a.course.number - b.course.number)
+    .map(({ course }) => course);
 }
 
 export function clearPreferences() {

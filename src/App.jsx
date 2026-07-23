@@ -33,16 +33,15 @@ export default function App() {
   const courses = useFirestoreCourses(guryeCourses);
   const bookmarkStore = useBookmarks(auth.user);
   const savedCourseStore = useSavedCourses(auth.user);
+  const { route, navigate, goBack } = useHashNavigation();
+  const selectedPost = posts.find(({ id }) => id === route.postId);
   const {
-    recommendedPosts,
+    relatedCourses,
     hasHistory: hasRecommendationHistory,
-    tagScores,
     record: recordRecommendation,
     recordTags,
     reset: resetRecommendations,
-  } = useRecommendations(posts);
-  const { route, navigate, goBack } = useHashNavigation();
-  const selectedPost = posts.find(({ id }) => id === route.postId);
+  } = useRecommendations(courses, selectedPost);
 
   useEffect(() => {
     if (route.view !== 'post' || !selectedPost) return;
@@ -115,8 +114,11 @@ export default function App() {
           post={selectedPost}
           user={auth.user}
           bookmarked={bookmarkStore.bookmarkedIds.has(selectedPost.id)}
+          relatedCourses={relatedCourses}
+          hasRecommendationHistory={hasRecommendationHistory}
           onHome={() => navigate('home')}
-          onOpenCourse={() => navigate('course')}
+          onOpenCourse={(courseId) => navigate('course', courseId)}
+          onResetRecommendations={resetRecommendations}
           onToggleBookmark={toggleBookmark}
         />
       );
@@ -130,7 +132,6 @@ export default function App() {
             initialCourseId={route.courseId}
             isCourseSaved={(courseId) => savedCourseStore.savedCourseIds.has(courseId)}
             onToggleCourseSave={savedCourseStore.toggle}
-            tagScores={tagScores}
             onHome={() => navigate('home')}
             onPost={selectedPost ? () => navigate('post', selectedPost.id) : undefined}
           />
@@ -143,14 +144,11 @@ export default function App() {
         courses={courses}
         user={auth.user}
         categories={categoryStore.categories}
-        recommendedPosts={recommendedPosts}
-        hasRecommendationHistory={hasRecommendationHistory}
         bookmarkedIds={bookmarkStore.bookmarkedIds}
         savedCourseIds={savedCourseStore.savedCourseIds}
         onOpenCourses={() => navigate('course')}
         onOpenCourse={(courseId) => navigate('course', courseId)}
         onOpenPost={(postId) => navigate('post', postId)}
-        onResetRecommendations={resetRecommendations}
         onSelectTags={recordTags}
         onToggleBookmark={toggleBookmark}
         onToggleCourseSave={savedCourseStore.toggle}

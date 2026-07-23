@@ -2,13 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   clearPreferences,
   PREFERENCE_EVENT,
-  rankPostsForUser,
+  rankRelatedCourses,
   readPreferences,
   recordPostInteraction,
   recordTagSelection,
 } from '../services/preferenceCookie';
 
-export function useRecommendations(posts) {
+export function useRecommendations(courses, activePost) {
   const [preferences, setPreferences] = useState(readPreferences);
 
   useEffect(() => {
@@ -17,9 +17,11 @@ export function useRecommendations(posts) {
     return () => window.removeEventListener(PREFERENCE_EVENT, refresh);
   }, []);
 
-  const recommendedPosts = useMemo(
-    () => rankPostsForUser(posts, preferences),
-    [posts, preferences],
+  const relatedCourses = useMemo(
+    () => activePost
+      ? rankRelatedCourses(courses, activePost, preferences).slice(0, 3)
+      : [],
+    [activePost, courses, preferences],
   );
   const hasHistory = preferences.recentViews.length > 0
     || Object.keys(preferences.tagScores).length > 0;
@@ -30,9 +32,8 @@ export function useRecommendations(posts) {
   const recordTags = useCallback((tags) => recordTagSelection(tags), []);
 
   return {
-    recommendedPosts,
+    relatedCourses,
     hasHistory,
-    tagScores: preferences.tagScores,
     record,
     recordTags,
     reset,

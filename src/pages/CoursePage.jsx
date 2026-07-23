@@ -9,13 +9,12 @@ export function CoursePage({
   initialCourseId,
   isCourseSaved = () => false,
   onToggleCourseSave = () => {},
-  tagScores = {},
   onHome,
   onPost,
 }) {
   const courses = useMemo(
-    () => createCourses(tagScores, sourceCourses),
-    [tagScores, sourceCourses],
+    () => createCourses({}, sourceCourses),
+    [sourceCourses],
   );
   const [courseId, setCourseId] = useState(initialCourseId ?? null);
   const [stepIndex, setStepIndex] = useState(0);
@@ -53,10 +52,10 @@ export function CoursePage({
             구례에서 즐기는<br />
             <span>맛있는 하루 코스</span>
           </h1>
-          <p>저장된 관심사 태그와 구례 로컬 동선을 조합했어요.</p>
+          <p>구례 안에서 자연스럽게 이어지는 로컬 동선을 모았어요.</p>
         </div>
         <div className="course-tabs" role="tablist" aria-label="추천 코스 선택">
-          {courses.map((item, index) => (
+          {courses.map((item) => (
             <button
               className={`course-tab${item.id === course.id ? ' active' : ''}`}
               type="button"
@@ -65,7 +64,7 @@ export function CoursePage({
               onClick={() => changeCourse(item.id)}
               key={item.id}
             >
-              <span>{index === 0 ? '맞춤 1순위' : `코스 ${item.number}`}</span>
+              <span>코스 {item.number}</span>
               <b>{item.theme}</b>
               <small>
                 {item.matchedTags.length ? item.matchedTags.join(' · ') : '구례 로컬 추천'}
