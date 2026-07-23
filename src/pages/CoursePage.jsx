@@ -1,10 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { CourseMap } from '../components/CourseMap';
 import { RelatedCourses } from '../components/RelatedCourses';
 import { createCourses } from '../data/createCourses';
 import { courseAuthor } from '../data/courseAuthors';
-import { buildCourseDirectionsUrl, buildDirectionsUrl } from '../services/placeService';
+import {
+  buildCourseDirectionsUrl,
+  buildDirectionsUrl,
+  lookupPlaceDetails,
+} from '../services/placeService';
 
 export function CoursePage({
   post,
@@ -36,6 +40,11 @@ export function CoursePage({
   const author = courseAuthor(course);
   const stepDirectionsUrl = buildDirectionsUrl(step);
   const routeDirectionsUrl = buildCourseDirectionsUrl(course.steps);
+  const placeKey = `${course.id}:${stepIndex}:${step.name}:${step.address}`;
+  const [placeLookup, setPlaceLookup] = useState({ key: '', details: null, loading: false });
+  const currentPlaceLookup = placeLookup.key === placeKey
+    ? placeLookup
+    : { key: placeKey, details: null, loading: true };
   const breadcrumbItems = [
     { label: '홈 피드', onClick: onHome },
     ...(post ? [{ label: post.name, onClick: onPost }] : []),
@@ -54,6 +63,21 @@ export function CoursePage({
   const toggleCourseSave = () => {
     onToggleCourseSave(course.id);
   };
+
+  useEffect(() => {
+    let active = true;
+    lookupPlaceDetails(step.name, step.address)
+      .then((details) => {
+        if (active) setPlaceLookup({ key: placeKey, details, loading: false });
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setPlaceLookup((current) => (
+          current.key === placeKey ? { ...current, loading: false } : current
+        ));
+      });
+    return () => { active = false; };
+  }, [placeKey, step.address, step.name]);
 
   return (
     <section className="view">
@@ -132,6 +156,19 @@ export function CoursePage({
               activeStep={stepIndex}
               onSelectStep={setStepIndex}
             />
+            <section className="course-place-info" aria-live="polite" aria-label="현재 장소 상세 정보">
+              <div className="course-place-info-heading">
+                <p className="eyebrow">PLACE DETAILS</p>
+                <small>{currentPlaceLookup.loading ? '장소 정보 불러오는 중' : currentPlaceLookup.details?.source ?? '등록 정보'}</small>
+              </div>
+              <h3>{step.name}</h3>
+              <p className="course-place-address">{step.address || '주소 정보가 등록되지 않았습니다.'}</p>
+              <dl>
+                <div><dt>영업시간</dt><dd>{currentPlaceLookup.details?.hours || step.hours || '등록된 정보 없음'}</dd></div>
+                <div><dt>전화번호</dt><dd>{currentPlaceLookup.details?.phone || step.phone || '등록된 정보 없음'}</dd></div>
+              </dl>
+              {currentPlaceLookup.details?.website && <a href={currentPlaceLookup.details.website} target="_blank" rel="noreferrer">공식 웹사이트 방문</a>}
+            </section>
             <div className="route-note">
               <b>총 예상 동선 · <span>{course.distance}</span></b>
               <span>{course.mode}</span>

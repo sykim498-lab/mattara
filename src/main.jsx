@@ -10,6 +10,7 @@ import './styles/carousel.css';
 import './styles/engagement.css';
 import './styles/detail.css';
 import './styles/course.css';
+import './styles/course-place-info.css';
 import './styles/course-selector.css';
 import './styles/course-feed.css';
 import './styles/comments.css';
