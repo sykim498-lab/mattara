@@ -118,6 +118,14 @@ export function DetailPage({
           onOpenCourse={onOpenCourse}
           onResetPreferences={onResetRecommendations}
         />
+        <div className="course-banner">
+          <div>
+            <p className="eyebrow">MAT-TARA CURATION</p>
+            <h2>이 장소에서 시작하는 구례 하루</h2>
+            <p>구례군 안에서 이어지는 맛집·자연·문화 동선을 추천해 드려요.</p>
+          </div>
+          <button type="button" onClick={() => onOpenCourse()}>코스 추천하기 →</button>
+        </div>
       </div>
     </section>
   );

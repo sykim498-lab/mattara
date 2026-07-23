@@ -38,7 +38,6 @@ export function RelatedCourses({
               >
                 <img src={course.steps[0].image} alt={`${course.theme} 대표 사진`} loading="lazy" />
                 <span>코스 {course.number}</span>
-                <strong>사진을 눌러 코스 보기 →</strong>
               </button>
               <div className="related-course-copy">
                 <h3>{course.theme}</h3>

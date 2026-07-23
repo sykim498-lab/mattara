@@ -77,8 +77,7 @@
   transform: scale(1.04);
 }
 
-.related-course-photo span,
-.related-course-photo strong {
+.related-course-photo span {
   position: absolute;
   z-index: 1;
   border-radius: 9px;
@@ -91,13 +90,6 @@
   left: 12px;
   padding: 6px 8px;
   font-size: 11px;
-}
-
-.related-course-photo strong {
-  right: 12px;
-  bottom: 12px;
-  padding: 7px 9px;
-  font-size: 12px;
 }
 
 .related-course-copy {

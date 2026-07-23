@@ -37,7 +37,6 @@ export function CourseFeedCard({ course, user, saved, onOpen, onToggleSave }) {
       <header className="course-feed-author">
         <span className="course-avatar">맛</span>
         <div><b>맛따라 로컬 큐레이터</b><small>전라남도 구례군 · 코스 {course.number}</small></div>
-        <small>사진을 눌러 코스 보기</small>
       </header>
       <div
         className="course-feed-photo"

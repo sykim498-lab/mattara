@@ -44,4 +44,20 @@ describe('DetailPage 이미지 코멘트', () => {
     }));
     expect(onOpenCourse).toHaveBeenCalledWith(guryeCourses[0].id);
   });
+
+  it('게시물 하단의 코스 추천하기 버튼으로 전체 코스를 연다', () => {
+    const onOpenCourse = vi.fn();
+    render(
+      <DetailPage
+        post={posts[0]}
+        bookmarked={false}
+        onHome={() => {}}
+        onOpenCourse={onOpenCourse}
+        onToggleBookmark={() => {}}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '코스 추천하기 →' }));
+    expect(onOpenCourse).toHaveBeenCalledWith();
+  });
 });
