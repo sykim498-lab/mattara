@@ -14,6 +14,7 @@ export function DetailPage({
   authorProfile,
   user,
   bookmarked,
+  bookmarkCount = 0,
   relatedCourses = [],
   hasRecommendationHistory = false,
   onHome,
@@ -82,6 +83,7 @@ export function DetailPage({
               <div className="social">
                 <span>♥ {numberFormatter.format(post.likes)}</span>
                 <span>☵ 댓글 {post.comments}</span>
+                <span className="bookmark-count">저장 {numberFormatter.format(bookmarkCount)}</span>
                 <button
                   className={`bookmark-button${bookmarked ? ' active' : ''}`}
                   type="button"

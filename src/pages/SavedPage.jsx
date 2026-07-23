@@ -9,7 +9,9 @@ export function SavedPage({
   user,
   profiles = new Map(),
   bookmarkedIds,
+  bookmarkCounts = new Map(),
   savedCourseIds,
+  savedCourseCounts = new Map(),
   onHome,
   onOpenPost,
   onOpenCourse,
@@ -39,6 +41,7 @@ export function SavedPage({
                   course={course}
                   user={user}
                   saved
+                  saveCount={savedCourseCounts.get(String(course.id)) ?? 0}
                   onOpen={onOpenCourse}
                   onToggleSave={onToggleCourseSave}
                   key={course.id}
@@ -55,6 +58,7 @@ export function SavedPage({
               authorProfile={profiles.get(post.ownerId)}
               user={user}
               bookmarked
+              bookmarkCount={bookmarkCounts.get(String(post.id)) ?? 0}
               onOpen={onOpenPost}
               onToggleBookmark={onToggleBookmark}
               key={post.id}

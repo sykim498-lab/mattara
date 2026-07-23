@@ -10,6 +10,7 @@ export function FeedCard({
   post,
   authorProfile,
   bookmarked = false,
+  bookmarkCount = 0,
   user,
   onOpen,
   onToggleBookmark = () => {},
@@ -112,6 +113,7 @@ export function FeedCard({
       </div>
       <div className="social card-actions">
         <span>♥ {numberFormatter.format(post.likes ?? 0)}</span>
+        <span className="bookmark-count">저장 {numberFormatter.format(bookmarkCount)}</span>
         <button
           className={`bookmark-button${bookmarked ? ' active' : ''}`}
           type="button"

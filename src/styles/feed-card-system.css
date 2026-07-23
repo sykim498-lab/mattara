@@ -35,3 +35,8 @@
 .card-body > .tags {
   margin-top: auto;
 }
+
+.bookmark-count {
+  color: var(--orange-dark);
+  font-weight: 800;
+}

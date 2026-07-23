@@ -7,7 +7,7 @@ import { TagList } from './TagList';
 
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
-export function CourseFeedCard({ course, user, saved, onOpen, onToggleSave }) {
+export function CourseFeedCard({ course, user, saved, saveCount = 0, onOpen, onToggleSave }) {
   const [stepIndex, setStepIndex] = useState(0);
   const touchStartX = useRef(null);
   const suppressOpen = useRef(false);
@@ -100,6 +100,7 @@ export function CourseFeedCard({ course, user, saved, onOpen, onToggleSave }) {
       </div>
       <div className="social card-actions">
         <span>♥ {numberFormatter.format(course.likes ?? 0)}</span>
+        <span className="bookmark-count">저장 {numberFormatter.format(saveCount)}</span>
         <button
           className={`bookmark-button${saved ? ' active' : ''}`}
           type="button"

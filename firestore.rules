@@ -42,6 +42,47 @@ service cloud.firestore {
       );
     }
 
+    function itemWasSaved(itemType, itemId) {
+      return signedIn() && (
+        (itemType == 'post'
+          && exists(/databases/$(database)/documents/users/$(request.auth.uid)/bookmarks/$(itemId)))
+        || (itemType == 'course'
+          && exists(/databases/$(database)/documents/users/$(request.auth.uid)/savedCourses/$(itemId)))
+      );
+    }
+
+    function itemWasCounted(itemType, itemId) {
+      return signedIn() && (
+        (itemType == 'post'
+          && exists(/databases/$(database)/documents/users/$(request.auth.uid)/bookmarks/$(itemId))
+          && get(/databases/$(database)/documents/users/$(request.auth.uid)/bookmarks/$(itemId)).data.counted == true)
+        || (itemType == 'course'
+          && exists(/databases/$(database)/documents/users/$(request.auth.uid)/savedCourses/$(itemId))
+          && get(/databases/$(database)/documents/users/$(request.auth.uid)/savedCourses/$(itemId)).data.counted == true)
+      );
+    }
+
+    function itemIsCountedAfter(itemType, itemId) {
+      return signedIn() && (
+        (itemType == 'post'
+          && existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)/bookmarks/$(itemId))
+          && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)/bookmarks/$(itemId)).data.counted == true)
+        || (itemType == 'course'
+          && existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)/savedCourses/$(itemId))
+          && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)/savedCourses/$(itemId)).data.counted == true)
+      );
+    }
+
+    function validBookmarkCount() {
+      return request.resource.data.keys().hasOnly([
+          'itemId', 'itemType', 'count', 'updatedAt'
+        ])
+        && request.resource.data.itemId is string
+        && request.resource.data.itemType in ['post', 'course']
+        && request.resource.data.count is int
+        && request.resource.data.count >= 0;
+    }
+
     function isValidMemberPost() {
       return signedIn()
         && request.resource.data.keys().hasOnly([
@@ -93,9 +134,46 @@ service cloud.firestore {
       );
       allow delete: if isAdmin() && request.auth.uid != userId;
 
-      match /{document=**} {
-        allow read, write: if signedIn() && request.auth.uid == userId;
+      match /bookmarks/{postId} {
+        allow read: if signedIn() && request.auth.uid == userId;
+        allow create: if signedIn()
+          && request.auth.uid == userId
+          && request.resource.data.keys().hasOnly(['postId', 'counted', 'savedAt'])
+          && request.resource.data.counted == true;
+        allow update: if false;
+        allow delete: if signedIn() && request.auth.uid == userId;
       }
+
+      match /savedCourses/{courseId} {
+        allow read: if signedIn() && request.auth.uid == userId;
+        allow create: if signedIn()
+          && request.auth.uid == userId
+          && request.resource.data.keys().hasOnly(['courseId', 'counted', 'savedAt'])
+          && request.resource.data.counted == true;
+        allow update: if false;
+        allow delete: if signedIn() && request.auth.uid == userId;
+      }
+    }
+
+    match /bookmarkCounts/{countId} {
+      allow read: if true;
+      allow create: if validBookmarkCount()
+        && request.resource.data.count == 1
+        && !itemWasSaved(request.resource.data.itemType, request.resource.data.itemId)
+        && itemIsCountedAfter(request.resource.data.itemType, request.resource.data.itemId);
+      allow update: if validBookmarkCount()
+        && request.resource.data.itemId == resource.data.itemId
+        && request.resource.data.itemType == resource.data.itemType
+        && (
+          (request.resource.data.count == resource.data.count + 1
+            && !itemWasSaved(resource.data.itemType, resource.data.itemId)
+            && itemIsCountedAfter(resource.data.itemType, resource.data.itemId))
+          || (resource.data.count > 0
+            && request.resource.data.count == resource.data.count - 1
+            && itemWasCounted(resource.data.itemType, resource.data.itemId)
+            && !itemIsCountedAfter(resource.data.itemType, resource.data.itemId))
+        );
+      allow delete: if false;
     }
 
     match /publicProfiles/{userId} {

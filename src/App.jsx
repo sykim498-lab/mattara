@@ -103,7 +103,9 @@ export default function App() {
           user={auth.user}
           profiles={publicProfiles}
           bookmarkedIds={bookmarkStore.bookmarkedIds}
+          bookmarkCounts={bookmarkStore.bookmarkCounts}
           savedCourseIds={savedCourseStore.savedCourseIds}
+          savedCourseCounts={savedCourseStore.savedCourseCounts}
           onHome={() => navigate('home')}
           onOpenPost={(postId) => navigate('post', postId)}
           onToggleBookmark={toggleBookmark}
@@ -119,6 +121,7 @@ export default function App() {
           authorProfile={publicProfiles.get(selectedPost.ownerId)}
           user={auth.user}
           bookmarked={bookmarkStore.bookmarkedIds.has(selectedPost.id)}
+          bookmarkCount={bookmarkStore.bookmarkCounts.get(String(selectedPost.id)) ?? 0}
           relatedCourses={relatedCourses}
           hasRecommendationHistory={hasRecommendationHistory}
           onHome={() => navigate('home')}
@@ -155,7 +158,9 @@ export default function App() {
         user={auth.user}
         profiles={publicProfiles}
         bookmarkedIds={bookmarkStore.bookmarkedIds}
+        bookmarkCounts={bookmarkStore.bookmarkCounts}
         savedCourseIds={savedCourseStore.savedCourseIds}
+        savedCourseCounts={savedCourseStore.savedCourseCounts}
         onOpenCourse={(courseId) => navigate('course', courseId)}
         onOpenPost={(postId) => navigate('post', postId)}
         onToggleBookmark={toggleBookmark}

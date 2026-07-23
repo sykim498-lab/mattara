@@ -12,4 +12,9 @@ describe('FeedCard 이미지 캐러셀', () => {
     fireEvent.click(screen.getByRole('button', { name: `${post.name} 다음 사진` }));
     expect(screen.getByText(`2 / ${post.images.length}`)).toBeInTheDocument();
   });
+
+  it('전달된 북마크 개수를 카드에 표시한다', () => {
+    render(<FeedCard post={posts[0]} bookmarkCount={12} onOpen={() => {}} />);
+    expect(screen.getByText('저장 12')).toBeInTheDocument();
+  });
 });

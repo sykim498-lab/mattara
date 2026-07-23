@@ -32,12 +32,73 @@ export async function subscribeToBookmarks(userId, onBookmarks, onError) {
   }, onError);
 }
 
-export async function saveBookmark(userId, postId, saved) {
+export async function subscribeToBookmarkCounts(itemType, onCounts, onError) {
   const db = await getFirestoreDatabase();
-  const { deleteDoc, doc, serverTimestamp, setDoc } = await import('firebase/firestore');
-  const reference = doc(db, 'users', userId, 'bookmarks', String(postId));
-  if (!saved) return deleteDoc(reference);
-  return setDoc(reference, { postId, savedAt: serverTimestamp() });
+  const { collection, onSnapshot } = await import('firebase/firestore');
+  return onSnapshot(collection(db, 'bookmarkCounts'), (snapshot) => {
+    const counts = new Map();
+    snapshot.docs.forEach((item) => {
+      const data = item.data();
+      if (data.itemType === itemType) counts.set(String(data.itemId), data.count ?? 0);
+    });
+    onCounts(counts);
+  }, onError);
+}
+
+async function updateSavedItem(userId, itemId, itemType, collectionName, saved) {
+  const db = await getFirestoreDatabase();
+  const {
+    deleteDoc,
+    doc,
+    runTransaction,
+    serverTimestamp,
+  } = await import('firebase/firestore');
+  const stringId = String(itemId);
+  const savedReference = doc(db, 'users', userId, collectionName, stringId);
+  const countReference = doc(db, 'bookmarkCounts', `${itemType}_${stringId}`);
+
+  return runTransaction(db, async (transaction) => {
+    const [savedSnapshot, countSnapshot] = await Promise.all([
+      transaction.get(savedReference),
+      transaction.get(countReference),
+    ]);
+    const currentlySaved = savedSnapshot.exists();
+    const currentCount = countSnapshot.exists() ? countSnapshot.data().count ?? 0 : 0;
+    if (currentlySaved === saved) return { saved, count: currentCount };
+
+    if (saved) {
+      transaction.set(savedReference, {
+        [`${itemType}Id`]: itemId,
+        counted: true,
+        savedAt: serverTimestamp(),
+      });
+      transaction.set(countReference, {
+        itemId: stringId,
+        itemType,
+        count: currentCount + 1,
+        updatedAt: serverTimestamp(),
+      });
+      return { saved: true, count: currentCount + 1 };
+    }
+
+    transaction.delete(savedReference);
+    const wasCounted = savedSnapshot.data()?.counted === true;
+    if (wasCounted && currentCount > 0) {
+      transaction.update(countReference, {
+        count: currentCount - 1,
+        updatedAt: serverTimestamp(),
+      });
+      return { saved: false, count: currentCount - 1 };
+    }
+    return { saved: false, count: currentCount };
+  }).catch(async (error) => {
+    if (!saved && error.code === 'not-found') await deleteDoc(savedReference);
+    throw error;
+  });
+}
+
+export async function saveBookmark(userId, postId, saved) {
+  return updateSavedItem(userId, postId, 'post', 'bookmarks', saved);
 }
 
 export async function subscribeToSavedCourses(userId, onCourses, onError) {
@@ -49,9 +110,5 @@ export async function subscribeToSavedCourses(userId, onCourses, onError) {
 }
 
 export async function saveCourse(userId, courseId, saved) {
-  const db = await getFirestoreDatabase();
-  const { deleteDoc, doc, serverTimestamp, setDoc } = await import('firebase/firestore');
-  const reference = doc(db, 'users', userId, 'savedCourses', String(courseId));
-  if (!saved) return deleteDoc(reference);
-  return setDoc(reference, { courseId, savedAt: serverTimestamp() });
+  return updateSavedItem(userId, courseId, 'course', 'savedCourses', saved);
 }

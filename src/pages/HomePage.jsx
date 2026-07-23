@@ -7,11 +7,13 @@ export function HomePage({
   profiles = new Map(),
   user,
   bookmarkedIds = new Set(),
+  bookmarkCounts = new Map(),
   onOpenCourse = () => {},
   onOpenPost = () => {},
   onToggleBookmark = () => {},
   onToggleCourseSave = () => {},
   savedCourseIds = new Set(),
+  savedCourseCounts = new Map(),
 }) {
   const memberPosts = posts
     .filter(({ ownerId }) => Boolean(ownerId))
@@ -44,6 +46,7 @@ export function HomePage({
                 authorProfile={profiles.get(post.ownerId)}
                 user={user}
                 bookmarked={bookmarkedIds.has(post.id)}
+                bookmarkCount={bookmarkCounts.get(String(post.id)) ?? 0}
                 onOpen={onOpenPost}
                 onToggleBookmark={onToggleBookmark}
                 key={`member-${post.id}`}
@@ -54,6 +57,7 @@ export function HomePage({
                 course={course}
                 user={user}
                 saved={savedCourseIds.has(course.id)}
+                saveCount={savedCourseCounts.get(String(course.id)) ?? 0}
                 onOpen={onOpenCourse}
                 onToggleSave={onToggleCourseSave}
                 key={course.id}
