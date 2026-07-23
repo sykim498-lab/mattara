@@ -40,9 +40,35 @@ service cloud.firestore {
       );
     }
 
+    function isValidMemberPost() {
+      return signedIn()
+        && request.resource.data.keys().hasOnly([
+          'id', 'ownerId', 'name', 'region', 'address', 'menu', 'caption',
+          'tags', 'images', 'author', 'handle', 'avatar', 'rating', 'likes',
+          'comments', 'published', 'createdAt'
+        ])
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.region == '전라남도 구례군'
+        && request.resource.data.address is string
+        && request.resource.data.address.matches('.*구례군.*')
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.menu is string
+        && request.resource.data.caption is string
+        && request.resource.data.tags is list
+        && request.resource.data.images is list
+        && request.resource.data.images.size() > 0
+        && request.resource.data.images.size() <= 8
+        && request.resource.data.rating == 0
+        && request.resource.data.likes == 0
+        && request.resource.data.comments == 0
+        && request.resource.data.published == true;
+    }
+
     match /posts/{postId} {
       allow read: if true;
-      allow write: if isEditor();
+      allow create: if isEditor() || isValidMemberPost();
+      allow update, delete: if isEditor();
     }
 
     match /courses/{courseId} {

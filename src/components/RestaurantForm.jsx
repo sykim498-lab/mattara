@@ -107,7 +107,7 @@ export function RestaurantForm({ userId, onSubmit }) {
       )}
       {error && <p className="form-error" role="alert">{error}</p>}
       <button className="primary form-submit" type="submit" disabled={submitting}>
-        {submitting ? '제출 중…' : '검수 요청하기'}
+        {submitting ? '게시 중…' : '바로 게시하기'}
       </button>
     </form>
   );

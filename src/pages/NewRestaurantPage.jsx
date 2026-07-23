@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { RestaurantForm } from '../components/RestaurantForm';
-import { submitRestaurant } from '../services/authService';
+import { publishRestaurant } from '../services/authService';
 
 export function NewRestaurantPage({ user, loading, onHome, onLogin }) {
   const [submitted, setSubmitted] = useState(false);
@@ -16,7 +16,7 @@ export function NewRestaurantPage({ user, loading, onHome, onLogin }) {
         <div className="panel auth-required">
           <span aria-hidden="true">🔐</span>
           <h1>로그인이 필요한 기능이에요</h1>
-          <p>맛집 등록은 소셜 계정으로 로그인한 사용자만 할 수 있습니다.</p>
+          <p>맛집 등록은 로그인한 회원만 할 수 있습니다.</p>
           <button className="primary" type="button" onClick={onLogin}>로그인하기</button>
         </div>
       </section>
@@ -28,8 +28,8 @@ export function NewRestaurantPage({ user, loading, onHome, onLogin }) {
       <section className="view status-view">
         <div className="panel auth-required">
           <span aria-hidden="true">✅</span>
-          <h1>맛집 등록 요청을 받았어요</h1>
-          <p>관리자 검수가 끝나면 새로운 맛집 피드에 공개됩니다.</p>
+          <h1>새 게시물이 공개됐어요</h1>
+          <p>등록한 맛집을 홈 피드에서 바로 확인할 수 있습니다.</p>
           <button className="primary" type="button" onClick={onHome}>홈으로 돌아가기</button>
         </div>
       </section>
@@ -43,12 +43,12 @@ export function NewRestaurantPage({ user, loading, onHome, onLogin }) {
         <div className="submission-heading">
           <p className="eyebrow">SHARE YOUR TASTE</p>
           <h1>새로운 맛집을 알려주세요</h1>
-          <p>직접 다녀온 곳의 생생한 이야기를 남겨 주세요. 검수 후 피드에 공개됩니다.</p>
+          <p>직접 다녀온 곳의 생생한 이야기를 남기면 피드에 바로 공개됩니다.</p>
         </div>
         <RestaurantForm
           userId={user.uid ?? user.id}
           onSubmit={async (values) => {
-            await submitRestaurant({
+            await publishRestaurant({
               ...values,
               author_email: user.email,
               author_name: user.displayName || user.email?.split('@')[0] || '구례 여행자',

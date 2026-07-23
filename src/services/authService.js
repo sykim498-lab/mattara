@@ -48,17 +48,31 @@ export async function signOut() {
   await firebaseSignOut(auth);
 }
 
-export async function submitRestaurant(values) {
+export async function publishRestaurant(values) {
   const { photos = [], ...document } = values;
-  const submissionId = crypto.randomUUID();
-  const images = await uploadPostImages(values.user_id, submissionId, photos);
+  const uploadId = crypto.randomUUID();
+  const images = await uploadPostImages(values.user_id, uploadId, photos);
+  const postId = Date.now();
   const db = await getFirestoreDatabase();
   const { doc, serverTimestamp, setDoc } = await import('firebase/firestore');
-  await setDoc(doc(db, 'restaurant_submissions', submissionId), {
-    ...document,
+  await setDoc(doc(db, 'posts', String(postId)), {
+    id: postId,
+    ownerId: document.user_id,
+    name: document.name,
+    region: document.region,
+    address: document.address,
+    menu: document.menu,
+    caption: document.description,
+    tags: document.tags,
     images,
-    status: 'pending',
-    created_at: serverTimestamp(),
+    author: document.author_name,
+    handle: `@${document.author_email.split('@')[0]}`,
+    avatar: images[0]?.url ?? '',
+    rating: 0,
+    likes: 0,
+    comments: 0,
+    published: true,
+    createdAt: serverTimestamp(),
   });
-  return { id: submissionId, status: 'pending' };
+  return { id: postId, status: 'published' };
 }
