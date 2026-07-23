@@ -1,7 +1,10 @@
 export function TagList({ tags }) {
+  const visibleTags = Array.isArray(tags) ? tags.filter(Boolean) : [];
+  if (!visibleTags.length) return null;
+
   return (
     <div className="tags" aria-label="태그">
-      {tags.map((tag) => (
+      {visibleTags.map((tag) => (
         <span className="tag" key={tag}>#{tag}</span>
       ))}
     </div>

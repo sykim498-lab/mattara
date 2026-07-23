@@ -1,0 +1,37 @@
+.feed-card,
+.card-open,
+.card-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-open,
+.card-body {
+  flex: 1;
+}
+
+.rating {
+  min-width: 52px;
+  text-align: center;
+}
+
+.rating-empty {
+  background: #f5f1ed;
+  color: var(--muted);
+}
+
+.card-title h2 {
+  display: -webkit-box;
+  overflow: hidden;
+  min-height: 43px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.card-body > p {
+  min-height: 43px;
+}
+
+.card-body > .tags {
+  margin-top: auto;
+}

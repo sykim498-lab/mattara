@@ -5,6 +5,7 @@ import App from './App';
 import { initializeFirebaseAnalytics } from './services/firebase';
 import './styles/base.css';
 import './styles/feed.css';
+import './styles/feed-card-system.css';
 import './styles/carousel.css';
 import './styles/engagement.css';
 import './styles/detail.css';

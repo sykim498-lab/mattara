@@ -111,7 +111,7 @@ export function FeedCard({
         </div>
       </div>
       <div className="social card-actions">
-        <span>♥ {numberFormatter.format(post.likes)}</span>
+        <span>♥ {numberFormatter.format(post.likes ?? 0)}</span>
         <button
           className={`bookmark-button${bookmarked ? ' active' : ''}`}
           type="button"
