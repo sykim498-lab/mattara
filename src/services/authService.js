@@ -1,6 +1,8 @@
 import { getFirebaseAuth, getFirestoreDatabase } from './firebase';
 import { uploadPostImages } from './storageService';
 
+const FALLBACK_POST_IMAGE = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=85';
+
 function authError(error) {
   const messages = {
     'auth/email-already-in-use': '이미 가입된 이메일입니다.',
@@ -51,7 +53,20 @@ export async function signOut() {
 export async function publishRestaurant(values) {
   const { photos = [], ...document } = values;
   const uploadId = crypto.randomUUID();
-  const images = await uploadPostImages(values.user_id, uploadId, photos);
+  let usedFallbackImage = false;
+  let images;
+  try {
+    images = await uploadPostImages(values.user_id, uploadId, photos);
+  } catch {
+    usedFallbackImage = true;
+    images = [{
+      url: FALLBACK_POST_IMAGE,
+      comment: photos[0]?.comment?.trim() || document.description,
+      lat: Number(photos[0]?.lat) || null,
+      lng: Number(photos[0]?.lng) || null,
+      order: 0,
+    }];
+  }
   const postId = Date.now();
   const db = await getFirestoreDatabase();
   const { doc, serverTimestamp, setDoc } = await import('firebase/firestore');
@@ -74,5 +89,5 @@ export async function publishRestaurant(values) {
     published: true,
     createdAt: serverTimestamp(),
   });
-  return { id: postId, status: 'published' };
+  return { id: postId, status: 'published', usedFallbackImage };
 }

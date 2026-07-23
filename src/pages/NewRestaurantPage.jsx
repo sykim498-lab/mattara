@@ -4,7 +4,7 @@ import { RestaurantForm } from '../components/RestaurantForm';
 import { publishRestaurant } from '../services/authService';
 
 export function NewRestaurantPage({ user, loading, onHome, onLogin }) {
-  const [submitted, setSubmitted] = useState(false);
+  const [publication, setPublication] = useState(null);
 
   if (loading) {
     return <main className="view status-view">로그인 상태를 확인하고 있어요…</main>;
@@ -23,13 +23,16 @@ export function NewRestaurantPage({ user, loading, onHome, onLogin }) {
     );
   }
 
-  if (submitted) {
+  if (publication) {
     return (
       <section className="view status-view">
         <div className="panel auth-required">
           <span aria-hidden="true">✅</span>
           <h1>새 게시물이 공개됐어요</h1>
           <p>등록한 맛집을 홈 피드에서 바로 확인할 수 있습니다.</p>
+          {publication.usedFallbackImage && (
+            <p>사진 저장소가 준비되지 않아 대표 기본 이미지로 게시했습니다.</p>
+          )}
           <button className="primary" type="button" onClick={onHome}>홈으로 돌아가기</button>
         </div>
       </section>
@@ -48,12 +51,12 @@ export function NewRestaurantPage({ user, loading, onHome, onLogin }) {
         <RestaurantForm
           userId={user.uid ?? user.id}
           onSubmit={async (values) => {
-            await publishRestaurant({
+            const result = await publishRestaurant({
               ...values,
               author_email: user.email,
               author_name: user.displayName || user.email?.split('@')[0] || '구례 여행자',
             });
-            setSubmitted(true);
+            setPublication(result);
           }}
         />
       </div>

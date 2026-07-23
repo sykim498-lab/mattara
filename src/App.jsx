@@ -146,10 +146,14 @@ export default function App() {
     }
     return (
       <HomePage
+        posts={posts}
         courses={courses}
         user={auth.user}
+        bookmarkedIds={bookmarkStore.bookmarkedIds}
         savedCourseIds={savedCourseStore.savedCourseIds}
         onOpenCourse={(courseId) => navigate('course', courseId)}
+        onOpenPost={(postId) => navigate('post', postId)}
+        onToggleBookmark={toggleBookmark}
         onToggleCourseSave={savedCourseStore.toggle}
       />
     );

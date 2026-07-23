@@ -1,12 +1,21 @@
 import { CourseFeedCard } from '../components/CourseFeedCard';
+import { FeedCard } from '../components/FeedCard';
 
 export function HomePage({
   courses = [],
+  posts = [],
   user,
+  bookmarkedIds = new Set(),
   onOpenCourse = () => {},
+  onOpenPost = () => {},
+  onToggleBookmark = () => {},
   onToggleCourseSave = () => {},
   savedCourseIds = new Set(),
 }) {
+  const memberPosts = posts
+    .filter(({ ownerId }) => Boolean(ownerId))
+    .sort((a, b) => b.id - a.id);
+
   return (
     <section className="view">
       <div className="shell">
@@ -23,11 +32,21 @@ export function HomePage({
 
         <section className="course-feed-section" aria-labelledby="course-feed-title">
           <div className="course-feed-heading">
-            <p className="eyebrow">8 AUTHORS · 8 LOCAL ROUTES</p>
-            <h2 id="course-feed-title">작성자별 구례 코스 피드</h2>
-            <p>맛집과 자연, 문화 공간을 엮은 각자의 여행 기록을 한눈에 둘러보세요.</p>
+            <p className="eyebrow">MEMBER POSTS · 8 LOCAL ROUTES</p>
+            <h2 id="course-feed-title">구례 여행자 추천 피드</h2>
+            <p>회원이 방금 등록한 맛집과 여덟 작성자의 여행 코스를 함께 둘러보세요.</p>
           </div>
           <div className="course-feed">
+            {memberPosts.map((post) => (
+              <FeedCard
+                post={post}
+                user={user}
+                bookmarked={bookmarkedIds.has(post.id)}
+                onOpen={onOpenPost}
+                onToggleBookmark={onToggleBookmark}
+                key={`member-${post.id}`}
+              />
+            ))}
             {courses.slice(0, 8).map((course) => (
               <CourseFeedCard
                 course={course}
