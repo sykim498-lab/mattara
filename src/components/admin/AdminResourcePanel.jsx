@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import { GURYE_REGION, isFranchisePlace } from '../../features/region/gurye';
 import { deleteAdminResource, saveAdminResource } from '../../services/adminService';
+import { lookupPlaceDetails } from '../../services/placeService';
 
-const emptyPost = { name: '', address: '', caption: '', tags: '', rating: '4.5', image: '' };
+const emptyPost = { name: '', address: '', caption: '', tags: '', rating: '4.5', image: '', lat: '', lng: '', placeId: '', googleMapsUri: '', website: '', hours: '', phone: '' };
 
 function postForm(item) {
   if (!item) return emptyPost;
@@ -13,6 +14,13 @@ function postForm(item) {
     tags: item.tags?.join(', ') ?? '',
     rating: String(item.rating ?? 4.5),
     image: item.images?.[0]?.url ?? '',
+    lat: item.images?.[0]?.lat ?? item.lat ?? '',
+    lng: item.images?.[0]?.lng ?? item.lng ?? '',
+    placeId: item.images?.[0]?.placeId ?? item.placeId ?? '',
+    googleMapsUri: item.images?.[0]?.googleMapsUri ?? item.googleMapsUri ?? '',
+    website: item.images?.[0]?.website ?? item.website ?? '',
+    hours: item.hours ?? '',
+    phone: item.phone ?? '',
   };
 }
 
@@ -34,6 +42,7 @@ export function AdminResourcePanel({ type, items }) {
   );
   const [form, setForm] = useState(() => (isPost ? emptyPost : courseForm()));
   const [message, setMessage] = useState('');
+  const [lookingUp, setLookingUp] = useState(false);
 
   const selectItem = (item) => {
     setSelectedId(item.documentId);
@@ -49,6 +58,16 @@ export function AdminResourcePanel({ type, items }) {
     ...current,
     [event.target.name]: event.target.value,
   }));
+  const lookupLocation = async () => {
+    if (!form.name.trim() || !form.address.trim()) return;
+    setLookingUp(true);
+    try {
+      const details = await lookupPlaceDetails(form.name, form.address);
+      setForm((current) => ({ ...current, address: details.address || current.address, lat: details.lat ?? current.lat, lng: details.lng ?? current.lng, placeId: details.placeId || current.placeId, googleMapsUri: details.googleMapsUri || current.googleMapsUri, website: details.website || current.website, hours: details.hours || current.hours, phone: details.phone || current.phone }));
+      setMessage('장소 정보를 확인했습니다. 저장 버튼을 눌러 반영하세요.');
+    } catch (error) { setMessage(error.message); }
+    finally { setLookingUp(false); }
+  };
 
   const save = async (event) => {
     event.preventDefault();
@@ -65,9 +84,16 @@ export function AdminResourcePanel({ type, items }) {
       address: form.address.trim(),
       caption: form.caption.trim(),
       rating: Number(form.rating),
+      lat: Number(form.lat) || null,
+      lng: Number(form.lng) || null,
+      placeId: form.placeId,
+      googleMapsUri: form.googleMapsUri,
+      website: form.website,
+      hours: form.hours.trim(),
+      phone: form.phone.trim(),
       tags,
       local: true,
-      images: form.image ? [{ url: form.image, comment: form.caption.trim() }] : selected?.images ?? [],
+      images: form.image ? [{ ...(selected?.images?.[0] ?? {}), url: form.image, address: form.address.trim(), lat: Number(form.lat) || null, lng: Number(form.lng) || null, placeId: form.placeId, googleMapsUri: form.googleMapsUri, website: form.website, description: selected?.images?.[0]?.description || form.caption.trim(), comment: selected?.images?.[0]?.comment || form.caption.trim(), order: 0 }] : selected?.images ?? [],
     } : {
       theme: form.theme.trim(),
       description: form.description.trim(),
@@ -114,6 +140,9 @@ export function AdminResourcePanel({ type, items }) {
         <h2>{selectedId ? '콘텐츠 편집' : '항목을 선택하세요'}</h2>
         {selectedId && (isPost ? (
           <>
+            <button className="ghost" type="button" onClick={lookupLocation} disabled={lookingUp}>{lookingUp ? '장소 확인 중' : '지도에서 장소 정보 찾기'}</button>
+            <div className="form-grid"><label><span>위도</span><input name="lat" type="number" step="any" value={form.lat} onChange={update} /></label><label><span>경도</span><input name="lng" type="number" step="any" value={form.lng} onChange={update} /></label></div>
+            <div className="form-grid"><label><span>영업시간</span><input name="hours" value={form.hours} onChange={update} /></label><label><span>전화번호</span><input name="phone" value={form.phone} onChange={update} /></label></div>
             <label><span>장소명</span><input name="name" value={form.name} onChange={update} required /></label>
             <label><span>구례군 주소</span><input name="address" value={form.address} onChange={update} required /></label>
             <label><span>감성 코멘트</span><textarea name="caption" value={form.caption} onChange={update} rows="3" /></label>
