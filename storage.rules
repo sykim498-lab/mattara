@@ -2,13 +2,20 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
+    function isConfiguredAdmin() {
+      return request.auth != null
+        && 'email' in request.auth.token
+        && request.auth.token.email == 'seoulddddd@gmail.com';
+    }
+
     match /post-images/{userId}/{submissionId}/{fileName} {
       allow read: if true;
       allow create: if request.auth != null
         && request.auth.uid == userId
         && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('image/.*');
-      allow update, delete: if request.auth != null && request.auth.uid == userId;
+      allow update, delete: if request.auth != null
+        && (request.auth.uid == userId || isConfiguredAdmin());
     }
   }
 }

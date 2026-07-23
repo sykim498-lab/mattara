@@ -1,4 +1,5 @@
 export const ADMIN_CUTOFF = Date.parse('2026-07-22T08:05:00Z');
+export const ADMIN_EMAILS = new Set(['seoulddddd@gmail.com']);
 
 export const MEMBER_LEVELS = [
   { value: 'member', label: '일반회원' },
@@ -13,8 +14,13 @@ export function isLegacyAdministrator(profile, user) {
   return Number.isFinite(createdAt) && createdAt <= ADMIN_CUTOFF;
 }
 
+export function isConfiguredAdministrator(user) {
+  return ADMIN_EMAILS.has(user?.email?.trim().toLocaleLowerCase('en-US'));
+}
+
 export function resolveMemberRole(profile, user, claims = {}) {
   if (claims.admin === true) return 'admin';
+  if (isConfiguredAdministrator(user)) return 'admin';
   if (isLegacyAdministrator(profile, user)) return 'admin';
   return profile?.role ?? 'member';
 }

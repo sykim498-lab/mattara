@@ -16,4 +16,14 @@ describe('admin member roles', () => {
   it('honors an explicit administrator claim', () => {
     expect(resolveMemberRole({ role: 'member' }, {}, { admin: true })).toBe('admin');
   });
+
+  it('grants administrator access to the configured email', () => {
+    const user = { email: 'SEOULDDDDD@GMAIL.COM' };
+    expect(resolveMemberRole({ role: 'member' }, user)).toBe('admin');
+  });
+
+  it('does not grant access to a misspelled email domain', () => {
+    const user = { email: 'seoulddddd@gmail.cpm' };
+    expect(resolveMemberRole({ role: 'member' }, user)).toBe('member');
+  });
 });

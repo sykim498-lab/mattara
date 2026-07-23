@@ -16,9 +16,16 @@ service cloud.firestore {
         && profile().createdAt <= timestamp.value('2026-07-22T08:05:00Z');
     }
 
+    function isConfiguredAdmin() {
+      return signedIn()
+        && 'email' in request.auth.token
+        && request.auth.token.email == 'seoulddddd@gmail.com';
+    }
+
     function isAdmin() {
       return signedIn() && (
-        ('admin' in request.auth.token && request.auth.token.admin == true)
+        isConfiguredAdmin()
+        || ('admin' in request.auth.token && request.auth.token.admin == true)
         || ('role' in profile() && profile().role == 'admin')
         || isLegacyAdmin()
       );
