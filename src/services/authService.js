@@ -2,7 +2,8 @@ import { getFirebaseAuth, getFirestoreDatabase } from './firebase';
 import { uploadPostImages } from './storageService';
 
 const FALLBACK_POST_IMAGE = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=85';
-const STORAGE_ENABLED = import.meta.env.VITE_FIREBASE_STORAGE_ENABLED === 'true';
+const STORAGE_ENABLED = import.meta.env.VITE_FIREBASE_STORAGE_ENABLED !== 'false';
+const UPLOAD_TIMEOUT_MS = 10000;
 const PUBLISH_TIMEOUT_MS = 15000;
 
 function fallbackImages(photos, description) {
@@ -15,12 +16,12 @@ function fallbackImages(photos, description) {
   }];
 }
 
-async function withPublishTimeout(promise) {
+async function withTimeout(promise, milliseconds, message) {
   let timer;
   const timeout = new Promise((resolve, reject) => {
     timer = window.setTimeout(() => {
-      reject(new Error('서버 응답 시간이 초과됐어요. 네트워크 연결을 확인한 뒤 다시 시도해 주세요.'));
-    }, PUBLISH_TIMEOUT_MS);
+      reject(new Error(message));
+    }, milliseconds);
   });
   try {
     return await Promise.race([promise, timeout]);
@@ -82,7 +83,11 @@ export async function publishRestaurant(values) {
   let images = fallbackImages(photos, document.description);
   if (STORAGE_ENABLED) {
     try {
-      images = await uploadPostImages(values.user_id, crypto.randomUUID(), photos);
+      images = await withTimeout(
+        uploadPostImages(values.user_id, crypto.randomUUID(), photos),
+        UPLOAD_TIMEOUT_MS,
+        '사진 업로드 시간이 초과됐어요.',
+      );
     } catch {
       usedFallbackImage = true;
     }
@@ -90,7 +95,7 @@ export async function publishRestaurant(values) {
   const postId = Date.now();
   const db = await getFirestoreDatabase();
   const { doc, serverTimestamp, setDoc } = await import('firebase/firestore');
-  await withPublishTimeout(setDoc(doc(db, 'posts', String(postId)), {
+  await withTimeout(setDoc(doc(db, 'posts', String(postId)), {
     id: postId,
     ownerId: document.user_id,
     name: document.name,
@@ -108,6 +113,6 @@ export async function publishRestaurant(values) {
     comments: 0,
     published: true,
     createdAt: serverTimestamp(),
-  }));
+  }), PUBLISH_TIMEOUT_MS, '서버 응답 시간이 초과됐어요. 네트워크 연결을 확인한 뒤 다시 시도해 주세요.');
   return { id: postId, status: 'published', usedFallbackImage };
 }

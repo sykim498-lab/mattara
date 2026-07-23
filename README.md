@@ -13,8 +13,8 @@ npm run dev
 단위·DOM 테스트, 프로덕션 빌드를 차례로 확인합니다.
 
 Firebase Storage를 활성화한 환경에서 원본 사진 업로드를 사용하려면
-`VITE_FIREBASE_STORAGE_ENABLED=true`로 빌드합니다. 기본값은 서버 게시가 멈추지 않도록
-대표 기본 이미지를 사용합니다.
+`VITE_FIREBASE_STORAGE_ENABLED=true`로 빌드합니다. 사진 업로드는 기본 활성화되며,
+Storage가 응답하지 않으면 10초 후 대표 기본 이미지로 전환해 게시 중 멈춤을 방지합니다.
 
 ## 주요 화면
 
