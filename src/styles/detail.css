@@ -223,6 +223,16 @@
   box-shadow: 0 12px 25px rgba(234, 88, 12, 0.24);
 }
 
+.detail-nav-btn {
+  margin-top: 18px;
+}
+
+.place-source {
+  display: block;
+  margin: 10px 0;
+  color: var(--muted);
+}
+
 .course-banner {
   display: flex;
   align-items: center;

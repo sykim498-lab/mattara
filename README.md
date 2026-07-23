@@ -9,6 +9,11 @@ npm install
 npm run dev
 ```
 
+Google Places 자동 장소 정보는 `VITE_GOOGLE_MAPS_API_KEY`를 사용합니다. Google Cloud에서
+Maps JavaScript API와 Places API (New)를 활성화하고 HTTP 리퍼러 제한을 적용한 브라우저 키를
+로컬 `.env` 및 GitHub Actions의 `GOOGLE_MAPS_API_KEY` secret에 등록하세요. 키가 없거나 Google
+호출이 실패하면 OpenStreetMap 공개 데이터로 자동 전환되며 Google Maps 길찾기 URL은 계속 동작합니다.
+
 전체 검증은 `npm run check`로 실행합니다. 이 명령은 파일별 실코드 줄 수, ESLint,
 단위·DOM 테스트, 프로덕션 빌드를 차례로 확인합니다.
 

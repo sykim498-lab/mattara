@@ -45,7 +45,14 @@ export async function subscribeToBookmarkCounts(itemType, onCounts, onError) {
   }, onError);
 }
 
-async function updateSavedItem(userId, itemId, itemType, collectionName, saved) {
+async function updateSavedItem(
+  userId,
+  itemId,
+  itemType,
+  collectionName,
+  saved,
+  counterCollection = 'bookmarkCounts',
+) {
   const db = await getFirestoreDatabase();
   const {
     deleteDoc,
@@ -54,8 +61,10 @@ async function updateSavedItem(userId, itemId, itemType, collectionName, saved) 
     serverTimestamp,
   } = await import('firebase/firestore');
   const stringId = String(itemId);
-  const savedReference = doc(db, 'users', userId, collectionName, stringId);
-  const countReference = doc(db, 'bookmarkCounts', `${itemType}_${stringId}`);
+  const itemKey = `${itemType}_${stringId}`;
+  const savedDocumentId = collectionName === 'likes' ? itemKey : stringId;
+  const savedReference = doc(db, 'users', userId, collectionName, savedDocumentId);
+  const countReference = doc(db, counterCollection, itemKey);
 
   return runTransaction(db, async (transaction) => {
     const [savedSnapshot, countSnapshot] = await Promise.all([
@@ -99,6 +108,26 @@ async function updateSavedItem(userId, itemId, itemType, collectionName, saved) 
 
 export async function saveBookmark(userId, postId, saved) {
   return updateSavedItem(userId, postId, 'post', 'bookmarks', saved);
+}
+
+export async function subscribeToLikes(userId, onLikes, onError) {
+  const db = await getFirestoreDatabase();
+  const { collection, onSnapshot } = await import('firebase/firestore');
+  return onSnapshot(collection(db, 'users', userId, 'likes'), (snapshot) => {
+    onLikes(snapshot.docs.map((item) => item.id));
+  }, onError);
+}
+
+export async function subscribeToLikeCounts(onCounts, onError) {
+  const db = await getFirestoreDatabase();
+  const { collection, onSnapshot } = await import('firebase/firestore');
+  return onSnapshot(collection(db, 'likeCounts'), (snapshot) => {
+    onCounts(new Map(snapshot.docs.map((item) => [item.id, item.data().count ?? 0])));
+  }, onError);
+}
+
+export async function saveLike(userId, itemType, itemId, liked) {
+  return updateSavedItem(userId, itemId, itemType, 'likes', liked, 'likeCounts');
 }
 
 export async function subscribeToSavedCourses(userId, onCourses, onError) {

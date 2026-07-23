@@ -83,10 +83,23 @@ service cloud.firestore {
         && request.resource.data.count >= 0;
     }
 
+    function likeWasCounted(itemKey) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid)/likes/$(itemKey))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)/likes/$(itemKey)).data.counted == true;
+    }
+
+    function likeIsCountedAfter(itemKey) {
+      return signedIn()
+        && existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)/likes/$(itemKey))
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)/likes/$(itemKey)).data.counted == true;
+    }
+
     function isValidMemberPost() {
       return signedIn()
         && request.resource.data.keys().hasOnly([
           'id', 'ownerId', 'name', 'region', 'address', 'menu', 'hours', 'phone', 'caption',
+          'placeId', 'googleMapsUri', 'website', 'placeSource',
           'tags', 'images', 'author', 'handle', 'avatar', 'rating', 'likes',
           'comments', 'published', 'createdAt'
         ])
@@ -99,6 +112,10 @@ service cloud.firestore {
         && request.resource.data.menu is string
         && request.resource.data.hours is string
         && request.resource.data.phone is string
+        && request.resource.data.placeId is string
+        && request.resource.data.googleMapsUri is string
+        && request.resource.data.website is string
+        && request.resource.data.placeSource is string
         && request.resource.data.caption is string
         && request.resource.data.tags is list
         && request.resource.data.images is list
@@ -153,6 +170,19 @@ service cloud.firestore {
         allow update: if false;
         allow delete: if signedIn() && request.auth.uid == userId;
       }
+
+      match /likes/{itemKey} {
+        allow read: if signedIn() && request.auth.uid == userId;
+        allow create: if signedIn()
+          && request.auth.uid == userId
+          && request.resource.data.keys().hasOnly([
+            'postId', 'courseId', 'counted', 'savedAt'
+          ])
+          && request.resource.data.keys().hasAny(['postId', 'courseId'])
+          && request.resource.data.counted == true;
+        allow update: if false;
+        allow delete: if signedIn() && request.auth.uid == userId;
+      }
     }
 
     match /bookmarkCounts/{countId} {
@@ -172,6 +202,28 @@ service cloud.firestore {
             && request.resource.data.count == resource.data.count - 1
             && itemWasCounted(resource.data.itemType, resource.data.itemId)
             && !itemIsCountedAfter(resource.data.itemType, resource.data.itemId))
+        );
+      allow delete: if false;
+    }
+
+    match /likeCounts/{countId} {
+      allow read: if true;
+      allow create: if validBookmarkCount()
+        && countId == request.resource.data.itemType + '_' + request.resource.data.itemId
+        && request.resource.data.count == 1
+        && !likeWasCounted(countId)
+        && likeIsCountedAfter(countId);
+      allow update: if validBookmarkCount()
+        && request.resource.data.itemId == resource.data.itemId
+        && request.resource.data.itemType == resource.data.itemType
+        && (
+          (request.resource.data.count == resource.data.count + 1
+            && !likeWasCounted(countId)
+            && likeIsCountedAfter(countId))
+          || (resource.data.count > 0
+            && request.resource.data.count == resource.data.count - 1
+            && likeWasCounted(countId)
+            && !likeIsCountedAfter(countId))
         );
       allow delete: if false;
     }

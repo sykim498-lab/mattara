@@ -15,12 +15,11 @@ export function PostAuthor({ post, profile, showRegion = false }) {
           {showRegion && post.region && ` · ${post.region}`}
         </small>
       </div>
-      <span
-        className={`rating${hasRating ? '' : ' rating-empty'}`}
-        aria-label={hasRating ? `평점 ${rating}점` : '등록된 평점 없음'}
-      >
-        {hasRating ? `★ ${rating}` : '평가 전'}
-      </span>
+      {hasRating && (
+        <span className="rating" aria-label={`평점 ${rating}점`}>
+          ★ {rating}
+        </span>
+      )}
     </div>
   );
 }

@@ -15,11 +15,6 @@
   text-align: center;
 }
 
-.rating-empty {
-  background: #f5f1ed;
-  color: var(--muted);
-}
-
 .card-title h2 {
   display: -webkit-box;
   overflow: hidden;
@@ -39,4 +34,19 @@
 .bookmark-count {
   color: var(--orange-dark);
   font-weight: 800;
+}
+
+.like-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 9px;
+  background: #fff5f3;
+  color: #9a6259;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.like-button.active {
+  background: #fee2e2;
+  color: #dc2626;
 }

@@ -82,6 +82,12 @@
   transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
 }
 
+.course-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .course-save:hover,
 .course-save.active {
   border-color: var(--orange);
@@ -134,6 +140,10 @@
   line-height: 1.75;
 }
 
+.course-step-directions {
+  margin-top: 14px;
+}
+
 .step-nav {
   display: flex;
   align-items: center;
@@ -168,6 +178,12 @@
 .route-note span {
   color: var(--muted);
   font-size: 12px;
+}
+
+.route-note a {
+  color: var(--orange-dark);
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .route-itinerary {

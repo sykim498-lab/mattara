@@ -7,7 +7,17 @@ import { TagList } from './TagList';
 
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
-export function CourseFeedCard({ course, user, saved, saveCount = 0, onOpen, onToggleSave }) {
+export function CourseFeedCard({
+  course,
+  user,
+  saved,
+  saveCount = 0,
+  liked = false,
+  likeCount = 0,
+  onOpen,
+  onToggleSave,
+  onToggleLike = () => {},
+}) {
   const [stepIndex, setStepIndex] = useState(0);
   const touchStartX = useRef(null);
   const suppressOpen = useRef(false);
@@ -99,7 +109,15 @@ export function CourseFeedCard({ course, user, saved, saveCount = 0, onOpen, onT
         </div>
       </div>
       <div className="social card-actions">
-        <span>♥ {numberFormatter.format(course.likes ?? 0)}</span>
+        <button
+          className={`like-button${liked ? ' active' : ''}`}
+          type="button"
+          onClick={() => onToggleLike(course)}
+          aria-pressed={liked}
+          aria-label={`${course.theme} ${liked ? '좋아요 취소' : '좋아요'}`}
+        >
+          {liked ? '♥' : '♡'} {numberFormatter.format(likeCount)}
+        </button>
         <span className="bookmark-count">저장 {numberFormatter.format(saveCount)}</span>
         <button
           className={`bookmark-button${saved ? ' active' : ''}`}

@@ -10,6 +10,10 @@ const INITIAL_FORM = {
   phone: '',
   lat: '',
   lng: '',
+  placeId: '',
+  googleMapsUri: '',
+  website: '',
+  placeSource: '',
   description: '',
   tags: '',
 };
@@ -56,15 +60,22 @@ export function RestaurantForm({ userId, onSubmit }) {
         phone: details.phone || current.phone,
         lat: details.lat ?? current.lat,
         lng: details.lng ?? current.lng,
+        placeId: details.placeId,
+        googleMapsUri: details.googleMapsUri,
+        website: details.website,
+        placeSource: details.source,
       }));
       setPhotos((current) => current.map((photo) => ({
         ...photo,
         lat: photo.lat || details.lat || '',
         lng: photo.lng || details.lng || '',
       })));
+      const attribution = details.source === 'Google Places'
+        ? 'Google Maps 장소 정보'
+        : '© OpenStreetMap contributors';
       setLookupMessage(details.hours || details.phone
-        ? '공개 장소 정보를 자동으로 채웠어요. · © OpenStreetMap contributors'
-        : '장소는 찾았지만 공개된 운영시간·전화번호가 없어요. · © OpenStreetMap contributors');
+        ? `장소 정보를 자동으로 채웠어요. · ${attribution}`
+        : `장소는 찾았지만 공개된 운영시간·전화번호가 없어요. · ${attribution}`);
     } catch (lookupError) {
       setLookupMessage(lookupError.message);
     } finally {
@@ -98,6 +109,10 @@ export function RestaurantForm({ userId, onSubmit }) {
         menu: form.menu.trim(),
         hours: form.hours.trim() || '방문 전 운영시간 확인',
         phone: form.phone.trim() || '매장 문의',
+        placeId: form.placeId,
+        googleMapsUri: form.googleMapsUri,
+        website: form.website,
+        placeSource: form.placeSource,
         description: form.description.trim(),
         tags: form.tags.split(',').map((tag) => tag.trim()).filter(Boolean),
         photos,

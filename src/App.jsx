@@ -15,6 +15,7 @@ import { useAdminAccess } from './hooks/useAdminAccess';
 import { useBookmarks } from './hooks/useBookmarks';
 import { useCategories } from './hooks/useCategories';
 import { useHashNavigation } from './hooks/useHashNavigation';
+import { useLikes } from './hooks/useLikes';
 import { useFirestorePosts } from './hooks/useFirestorePosts';
 import { useFirestoreCourses } from './hooks/useFirestoreCourses';
 import { useRecommendations } from './hooks/useRecommendations';
@@ -34,6 +35,7 @@ export default function App() {
   const courses = useFirestoreCourses(guryeCourses);
   const bookmarkStore = useBookmarks(auth.user);
   const savedCourseStore = useSavedCourses(auth.user);
+  const likeStore = useLikes(auth.user);
   const publicProfiles = usePublicProfiles();
   const { route, navigate, goBack } = useHashNavigation();
   const selectedPost = posts.find(({ id }) => id === route.postId);
@@ -106,11 +108,15 @@ export default function App() {
           bookmarkCounts={bookmarkStore.bookmarkCounts}
           savedCourseIds={savedCourseStore.savedCourseIds}
           savedCourseCounts={savedCourseStore.savedCourseCounts}
+          isLiked={likeStore.isLiked}
+          getLikeCount={likeStore.getLikeCount}
           onHome={() => navigate('home')}
           onOpenPost={(postId) => navigate('post', postId)}
           onToggleBookmark={toggleBookmark}
           onOpenCourse={(courseId) => navigate('course', courseId)}
           onToggleCourseSave={savedCourseStore.toggle}
+          onTogglePostLike={(post) => likeStore.toggleLike('post', post.id)}
+          onToggleCourseLike={(course) => likeStore.toggleLike('course', course.id)}
         />
       );
     }
@@ -122,12 +128,15 @@ export default function App() {
           user={auth.user}
           bookmarked={bookmarkStore.bookmarkedIds.has(selectedPost.id)}
           bookmarkCount={bookmarkStore.bookmarkCounts.get(String(selectedPost.id)) ?? 0}
+          liked={likeStore.isLiked('post', selectedPost.id)}
+          likeCount={likeStore.getLikeCount('post', selectedPost.id, selectedPost.likes ?? 0)}
           relatedCourses={relatedCourses}
           hasRecommendationHistory={hasRecommendationHistory}
           onHome={() => navigate('home')}
           onOpenCourse={(courseId) => navigate('course', courseId)}
           onResetRecommendations={resetRecommendations}
           onToggleBookmark={toggleBookmark}
+          onToggleLike={(post) => likeStore.toggleLike('post', post.id)}
         />
       );
     }
@@ -141,6 +150,9 @@ export default function App() {
             initialCourseId={route.courseId}
             isCourseSaved={(courseId) => savedCourseStore.savedCourseIds.has(courseId)}
             onToggleCourseSave={savedCourseStore.toggle}
+            isCourseLiked={(courseId) => likeStore.isLiked('course', courseId)}
+            getCourseLikeCount={(courseId, base) => likeStore.getLikeCount('course', courseId, base)}
+            onToggleCourseLike={(courseId) => likeStore.toggleLike('course', courseId)}
             relatedCourses={relatedCourses}
             hasRecommendationHistory={hasRecommendationHistory}
             onOpenRelatedCourse={(courseId) => navigate('course', courseId)}
@@ -161,10 +173,14 @@ export default function App() {
         bookmarkCounts={bookmarkStore.bookmarkCounts}
         savedCourseIds={savedCourseStore.savedCourseIds}
         savedCourseCounts={savedCourseStore.savedCourseCounts}
+        isLiked={likeStore.isLiked}
+        getLikeCount={likeStore.getLikeCount}
         onOpenCourse={(courseId) => navigate('course', courseId)}
         onOpenPost={(postId) => navigate('post', postId)}
         onToggleBookmark={toggleBookmark}
         onToggleCourseSave={savedCourseStore.toggle}
+        onTogglePostLike={(post) => likeStore.toggleLike('post', post.id)}
+        onToggleCourseLike={(course) => likeStore.toggleLike('course', course.id)}
       />
     );
   };

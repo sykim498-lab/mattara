@@ -4,6 +4,7 @@ import { CourseMap } from '../components/CourseMap';
 import { RelatedCourses } from '../components/RelatedCourses';
 import { createCourses } from '../data/createCourses';
 import { courseAuthor } from '../data/courseAuthors';
+import { buildCourseDirectionsUrl, buildDirectionsUrl } from '../services/placeService';
 
 export function CoursePage({
   post,
@@ -11,6 +12,9 @@ export function CoursePage({
   initialCourseId,
   isCourseSaved = () => false,
   onToggleCourseSave = () => {},
+  isCourseLiked = () => false,
+  getCourseLikeCount = () => 0,
+  onToggleCourseLike = () => {},
   relatedCourses = [],
   hasRecommendationHistory = false,
   onOpenRelatedCourse = () => {},
@@ -27,7 +31,11 @@ export function CoursePage({
   const course = courses.find(({ id }) => id === courseId) ?? courses[0];
   const step = course.steps[stepIndex];
   const isSaved = isCourseSaved(course.id);
+  const isLiked = isCourseLiked(course.id);
+  const likeCount = getCourseLikeCount(course.id, course.likes ?? 0);
   const author = courseAuthor(course);
+  const stepDirectionsUrl = buildDirectionsUrl(step);
+  const routeDirectionsUrl = buildCourseDirectionsUrl(course.steps);
   const breadcrumbItems = [
     { label: '홈 피드', onClick: onHome },
     ...(post ? [{ label: post.name, onClick: onPost }] : []),
@@ -84,9 +92,19 @@ export function CoursePage({
             <b>코스 {course.number} · {course.theme}</b>
             <span>{course.description}</span>
           </div>
-          <button className={`course-save${isSaved ? ' active' : ''}`} type="button" onClick={toggleCourseSave}>
-            {isSaved ? '✓ 코스 저장됨' : '＋ 코스 저장'}
-          </button>
+          <div className="course-head-actions">
+            <button
+              className={`like-button${isLiked ? ' active' : ''}`}
+              type="button"
+              onClick={() => onToggleCourseLike(course.id)}
+              aria-pressed={isLiked}
+            >
+              {isLiked ? '♥' : '♡'} 좋아요 {likeCount}
+            </button>
+            <button className={`course-save${isSaved ? ' active' : ''}`} type="button" onClick={toggleCourseSave}>
+              {isSaved ? '✓ 코스 저장됨' : '＋ 코스 저장'}
+            </button>
+          </div>
         </div>
         <div className="course-layout">
           <article className="panel step-panel">
@@ -98,6 +116,9 @@ export function CoursePage({
               <p className="eyebrow">{step.label}</p>
               <h2>{step.name}</h2>
               <p>{step.description}</p>
+              <a className="nav-btn course-step-directions" href={stepDirectionsUrl} target="_blank" rel="noreferrer">
+                현재 장소로 길찾기
+              </a>
               <div className="step-nav">
                 <button type="button" onClick={() => moveStep(-1)}>← 이전</button>
                 <span className="step-progress">{stepIndex + 1} / {course.steps.length}</span>
@@ -114,6 +135,7 @@ export function CoursePage({
             <div className="route-note">
               <b>총 예상 동선 · <span>{course.distance}</span></b>
               <span>{course.mode}</span>
+              <a href={routeDirectionsUrl} target="_blank" rel="noreferrer">전체 코스 길찾기</a>
             </div>
           </aside>
         </div>

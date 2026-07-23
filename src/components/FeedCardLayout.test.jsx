@@ -29,8 +29,8 @@ describe('메인 피드 카드 레이아웃', () => {
     expect(cardSections(courseCard.container)).toEqual(cardSections(postCard.container));
   });
 
-  it('평점이 없는 코스도 작성자 영역의 평가 상태를 유지한다', () => {
-    const { container, getByText } = render(
+  it('평점이 없는 코스는 평가 배지를 표시하지 않는다', () => {
+    const { container, queryByText } = render(
       <CourseFeedCard
         course={guryeCourses[0]}
         onOpen={() => {}}
@@ -38,7 +38,7 @@ describe('메인 피드 카드 레이아웃', () => {
       />,
     );
 
-    expect(container.querySelector('.rating-empty')).toBeInTheDocument();
-    expect(getByText('평가 전')).toBeInTheDocument();
+    expect(container.querySelector('.rating')).not.toBeInTheDocument();
+    expect(queryByText('평가 전')).not.toBeInTheDocument();
   });
 });

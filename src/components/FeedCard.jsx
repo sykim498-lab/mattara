@@ -11,9 +11,12 @@ export function FeedCard({
   authorProfile,
   bookmarked = false,
   bookmarkCount = 0,
+  liked = false,
+  likeCount = 0,
   user,
   onOpen,
   onToggleBookmark = () => {},
+  onToggleLike = () => {},
 }) {
   const [imageIndex, setImageIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -112,7 +115,15 @@ export function FeedCard({
         </div>
       </div>
       <div className="social card-actions">
-        <span>♥ {numberFormatter.format(post.likes ?? 0)}</span>
+        <button
+          className={`like-button${liked ? ' active' : ''}`}
+          type="button"
+          onClick={() => onToggleLike(post)}
+          aria-pressed={liked}
+          aria-label={`${post.name} ${liked ? '좋아요 취소' : '좋아요'}`}
+        >
+          {liked ? '♥' : '♡'} {numberFormatter.format(likeCount)}
+        </button>
         <span className="bookmark-count">저장 {numberFormatter.format(bookmarkCount)}</span>
         <button
           className={`bookmark-button${bookmarked ? ' active' : ''}`}

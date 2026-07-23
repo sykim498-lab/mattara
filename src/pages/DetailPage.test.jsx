@@ -5,6 +5,10 @@ import { guryeCourses } from '../data/guryeCourses';
 import { DetailPage } from './DetailPage';
 
 vi.mock('../components/DetailMap', () => ({ DetailMap: () => <div>지도</div> }));
+vi.mock('../services/placeService', () => ({
+  buildDirectionsUrl: () => 'https://www.google.com/maps/dir/?api=1&destination=test',
+  lookupPlaceDetails: () => Promise.reject(new Error('not configured')),
+}));
 
 describe('DetailPage 이미지 코멘트', () => {
   it('사진을 넘기면 연결된 코멘트도 함께 바뀐다', () => {
@@ -59,5 +63,20 @@ describe('DetailPage 이미지 코멘트', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '코스 추천하기 →' }));
     expect(onOpenCourse).toHaveBeenCalledWith();
+  });
+
+  it('모든 게시물에 Google 지도 길찾기 링크를 표시한다', () => {
+    render(
+      <DetailPage
+        post={posts[0]}
+        bookmarked={false}
+        onHome={() => {}}
+        onOpenCourse={() => {}}
+        onToggleBookmark={() => {}}
+      />,
+    );
+    const links = screen.getAllByRole('link', { name: /길찾기/ });
+    expect(links.length).toBeGreaterThan(0);
+    expect(links[0]).toHaveAttribute('href', expect.stringContaining('google.com/maps/dir'));
   });
 });

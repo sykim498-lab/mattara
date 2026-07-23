@@ -14,6 +14,10 @@ export function HomePage({
   onToggleCourseSave = () => {},
   savedCourseIds = new Set(),
   savedCourseCounts = new Map(),
+  isLiked = () => false,
+  getLikeCount = (_type, _id, base = 0) => base,
+  onTogglePostLike = () => {},
+  onToggleCourseLike = () => {},
 }) {
   const memberPosts = posts
     .filter(({ ownerId }) => Boolean(ownerId))
@@ -47,8 +51,11 @@ export function HomePage({
                 user={user}
                 bookmarked={bookmarkedIds.has(post.id)}
                 bookmarkCount={bookmarkCounts.get(String(post.id)) ?? 0}
+                liked={isLiked('post', post.id)}
+                likeCount={getLikeCount('post', post.id, post.likes ?? 0)}
                 onOpen={onOpenPost}
                 onToggleBookmark={onToggleBookmark}
+                onToggleLike={onTogglePostLike}
                 key={`member-${post.id}`}
               />
             ))}
@@ -58,8 +65,11 @@ export function HomePage({
                 user={user}
                 saved={savedCourseIds.has(course.id)}
                 saveCount={savedCourseCounts.get(String(course.id)) ?? 0}
+                liked={isLiked('course', course.id)}
+                likeCount={getLikeCount('course', course.id, course.likes ?? 0)}
                 onOpen={onOpenCourse}
                 onToggleSave={onToggleCourseSave}
+                onToggleLike={onToggleCourseLike}
                 key={course.id}
               />
             ))}

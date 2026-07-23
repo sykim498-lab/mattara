@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { CommentsSection } from '../components/CommentsSection';
 import { DetailMap } from '../components/DetailMap';
@@ -6,6 +6,7 @@ import { PostAuthor } from '../components/PostAuthor';
 import { RelatedCourses } from '../components/RelatedCourses';
 import { ShareActions } from '../components/ShareActions';
 import { TagList } from '../components/TagList';
+import { buildDirectionsUrl, lookupPlaceDetails } from '../services/placeService';
 
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
@@ -15,14 +16,18 @@ export function DetailPage({
   user,
   bookmarked,
   bookmarkCount = 0,
+  liked = false,
+  likeCount = 0,
   relatedCourses = [],
   hasRecommendationHistory = false,
   onHome,
   onOpenCourse,
   onResetRecommendations = () => {},
   onToggleBookmark,
+  onToggleLike = () => {},
 }) {
   const [imageIndex, setImageIndex] = useState(0);
+  const [livePlace, setLivePlace] = useState(null);
   const image = post.images[imageIndex];
   const moveImage = (offset) => {
     setImageIndex((current) =>
@@ -30,8 +35,22 @@ export function DetailPage({
     );
   };
   const mappedImage = post.images.find(({ lat, lng }) => Number.isFinite(lat) && Number.isFinite(lng));
-  const destination = mappedImage ? `${mappedImage.lat},${mappedImage.lng}` : post.address;
-  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${destination}`;
+  const place = { ...post, ...livePlace };
+  const directionsUrl = buildDirectionsUrl({
+    name: post.name,
+    address: post.address,
+    lat: livePlace?.lat ?? mappedImage?.lat,
+    lng: livePlace?.lng ?? mappedImage?.lng,
+    placeId: livePlace?.placeId || post.placeId,
+  });
+
+  useEffect(() => {
+    let active = true;
+    lookupPlaceDetails(post.name, post.address)
+      .then((details) => { if (active) setLivePlace(details); })
+      .catch(() => {});
+    return () => { active = false; };
+  }, [post.address, post.id, post.name]);
 
   return (
     <section className="view">
@@ -80,8 +99,18 @@ export function DetailPage({
                 좋아요. 처음 방문한다면 가장 먼저 추천하고 싶은 선택이에요.
               </p>
               <TagList tags={post.tags} />
+              <a className="nav-btn detail-nav-btn" href={directionsUrl} target="_blank" rel="noreferrer">
+                이 장소로 길찾기
+              </a>
               <div className="social">
-                <span>♥ {numberFormatter.format(post.likes)}</span>
+                <button
+                  className={`like-button${liked ? ' active' : ''}`}
+                  type="button"
+                  onClick={() => onToggleLike(post)}
+                  aria-pressed={liked}
+                >
+                  {liked ? '♥' : '♡'} 좋아요 {numberFormatter.format(likeCount)}
+                </button>
                 <span>☵ 댓글 {post.comments}</span>
                 <span className="bookmark-count">저장 {numberFormatter.format(bookmarkCount)}</span>
                 <button
@@ -104,10 +133,14 @@ export function DetailPage({
               <h2>{post.name}</h2>
               <p className="address">⌖ {post.address}</p>
               <div className="info-list">
-                <div className="info-row"><b>영업시간</b><span>{post.hours ?? '방문 전 운영시간 확인'}</span></div>
-                <div className="info-row"><b>전화번호</b><span>{post.phone ?? '매장 문의'}</span></div>
+                <div className="info-row"><b>영업시간</b><span>{place.hours || '방문 전 운영시간 확인'}</span></div>
+                <div className="info-row"><b>전화번호</b><span>{place.phone || '매장 문의'}</span></div>
                 <div className="info-row"><b>대표 메뉴</b><span>{post.menu}</span></div>
+                {place.website && <div className="info-row"><b>웹사이트</b><a href={place.website} target="_blank" rel="noreferrer">방문하기</a></div>}
               </div>
+              {(livePlace?.source || post.placeSource) && (
+                <small className="place-source">장소 정보: {livePlace?.source || post.placeSource}</small>
+              )}
               <a className="nav-btn" href={directionsUrl} target="_blank" rel="noreferrer">
                 길찾기 연결하기 ↗
               </a>
