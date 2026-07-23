@@ -1,6 +1,10 @@
+import { firebaseConfig } from './firebase';
+
 const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search';
 const GOOGLE_SCRIPT_ID = 'mattara-google-maps';
-const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.trim();
+const GOOGLE_MAPS_API_KEY = import.meta.env.MODE === 'test'
+  ? ''
+  : import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.trim() || firebaseConfig.apiKey;
 let googleMapsPromise;
 let lastLookupAt = 0;
 
