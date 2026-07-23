@@ -18,8 +18,9 @@ describe('admin member roles', () => {
   });
 
   it('grants administrator access to the configured email', () => {
-    const user = { email: 'SEOULDDDDD@GMAIL.COM' };
-    expect(resolveMemberRole({ role: 'member' }, user)).toBe('admin');
+    ['SEOULDDDDD@GMAIL.COM', 'gaingnarim@gmail.com'].forEach((email) => {
+      expect(resolveMemberRole({ role: 'member' }, { email })).toBe('admin');
+    });
   });
 
   it('does not grant access to a misspelled email domain', () => {

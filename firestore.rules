@@ -19,7 +19,10 @@ service cloud.firestore {
     function isConfiguredAdmin() {
       return signedIn()
         && 'email' in request.auth.token
-        && request.auth.token.email == 'seoulddddd@gmail.com';
+        && request.auth.token.email in [
+          'seoulddddd@gmail.com',
+          'gaingnarim@gmail.com'
+        ];
     }
 
     function isAdmin() {
