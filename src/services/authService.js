@@ -2,6 +2,32 @@ import { getFirebaseAuth, getFirestoreDatabase } from './firebase';
 import { uploadPostImages } from './storageService';
 
 const FALLBACK_POST_IMAGE = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=85';
+const STORAGE_ENABLED = import.meta.env.VITE_FIREBASE_STORAGE_ENABLED === 'true';
+const PUBLISH_TIMEOUT_MS = 15000;
+
+function fallbackImages(photos, description) {
+  return [{
+    url: FALLBACK_POST_IMAGE,
+    comment: photos[0]?.comment?.trim() || description,
+    lat: Number(photos[0]?.lat) || null,
+    lng: Number(photos[0]?.lng) || null,
+    order: 0,
+  }];
+}
+
+async function withPublishTimeout(promise) {
+  let timer;
+  const timeout = new Promise((resolve, reject) => {
+    timer = window.setTimeout(() => {
+      reject(new Error('서버 응답 시간이 초과됐어요. 네트워크 연결을 확인한 뒤 다시 시도해 주세요.'));
+    }, PUBLISH_TIMEOUT_MS);
+  });
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
 
 function authError(error) {
   const messages = {
@@ -52,25 +78,19 @@ export async function signOut() {
 
 export async function publishRestaurant(values) {
   const { photos = [], ...document } = values;
-  const uploadId = crypto.randomUUID();
-  let usedFallbackImage = false;
-  let images;
-  try {
-    images = await uploadPostImages(values.user_id, uploadId, photos);
-  } catch {
-    usedFallbackImage = true;
-    images = [{
-      url: FALLBACK_POST_IMAGE,
-      comment: photos[0]?.comment?.trim() || document.description,
-      lat: Number(photos[0]?.lat) || null,
-      lng: Number(photos[0]?.lng) || null,
-      order: 0,
-    }];
+  let usedFallbackImage = !STORAGE_ENABLED;
+  let images = fallbackImages(photos, document.description);
+  if (STORAGE_ENABLED) {
+    try {
+      images = await uploadPostImages(values.user_id, crypto.randomUUID(), photos);
+    } catch {
+      usedFallbackImage = true;
+    }
   }
   const postId = Date.now();
   const db = await getFirestoreDatabase();
   const { doc, serverTimestamp, setDoc } = await import('firebase/firestore');
-  await setDoc(doc(db, 'posts', String(postId)), {
+  await withPublishTimeout(setDoc(doc(db, 'posts', String(postId)), {
     id: postId,
     ownerId: document.user_id,
     name: document.name,
@@ -88,6 +108,6 @@ export async function publishRestaurant(values) {
     comments: 0,
     published: true,
     createdAt: serverTimestamp(),
-  });
+  }));
   return { id: postId, status: 'published', usedFallbackImage };
 }
