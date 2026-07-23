@@ -8,6 +8,7 @@ const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 export function FeedCard({
   post,
+  authorProfile,
   bookmarked = false,
   user,
   onOpen,
@@ -66,7 +67,7 @@ export function FeedCard({
         }}
         aria-label={`${post.name} 상세 보기`}
       >
-        <PostAuthor post={post} />
+        <PostAuthor post={post} profile={authorProfile} />
         <div
           className="photo-wrap"
           onTouchStart={(event) => { touchStartX.current = event.touches[0].clientX; }}

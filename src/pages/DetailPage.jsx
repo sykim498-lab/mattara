@@ -11,6 +11,7 @@ const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 export function DetailPage({
   post,
+  authorProfile,
   user,
   bookmarked,
   relatedCourses = [],
@@ -69,7 +70,7 @@ export function DetailPage({
               <p>{image.comment ?? `${post.name}의 ${imageIndex + 1}번째 사진이에요.`}</p>
             </div>
             <div className="detail-copy">
-              <PostAuthor post={post} showRegion />
+              <PostAuthor post={post} profile={authorProfile} showRegion />
               <h1>{post.name}</h1>
               <p>
                 {post.caption}
@@ -101,8 +102,8 @@ export function DetailPage({
               <h2>{post.name}</h2>
               <p className="address">⌖ {post.address}</p>
               <div className="info-list">
-                <div className="info-row"><b>영업시간</b><span>{post.hours}</span></div>
-                <div className="info-row"><b>전화번호</b><span>{post.phone}</span></div>
+                <div className="info-row"><b>영업시간</b><span>{post.hours ?? '방문 전 운영시간 확인'}</span></div>
+                <div className="info-row"><b>전화번호</b><span>{post.phone ?? '매장 문의'}</span></div>
                 <div className="info-row"><b>대표 메뉴</b><span>{post.menu}</span></div>
               </div>
               <a className="nav-btn" href={directionsUrl} target="_blank" rel="noreferrer">
@@ -115,7 +116,7 @@ export function DetailPage({
           source={post}
           courses={relatedCourses}
           hasPreferenceHistory={hasRecommendationHistory}
-          description={`${post.author}님의 게시물 태그와 저장된 취향을 바탕으로 골랐어요.`}
+          description={`${authorProfile?.displayName ?? post.author}님의 게시물 태그와 저장된 취향을 바탕으로 골랐어요.`}
           onOpenCourse={onOpenCourse}
           onResetPreferences={onResetRecommendations}
         />

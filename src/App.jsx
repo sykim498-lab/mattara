@@ -18,6 +18,7 @@ import { useHashNavigation } from './hooks/useHashNavigation';
 import { useFirestorePosts } from './hooks/useFirestorePosts';
 import { useFirestoreCourses } from './hooks/useFirestoreCourses';
 import { useRecommendations } from './hooks/useRecommendations';
+import { usePublicProfiles } from './hooks/usePublicProfiles';
 import { useSavedCourses } from './hooks/useSavedCourses';
 import { signOut } from './services/authService';
 
@@ -33,6 +34,7 @@ export default function App() {
   const courses = useFirestoreCourses(guryeCourses);
   const bookmarkStore = useBookmarks(auth.user);
   const savedCourseStore = useSavedCourses(auth.user);
+  const publicProfiles = usePublicProfiles();
   const { route, navigate, goBack } = useHashNavigation();
   const selectedPost = posts.find(({ id }) => id === route.postId);
   const selectedCourse = courses.find(({ id }) => id === route.courseId);
@@ -99,6 +101,7 @@ export default function App() {
           posts={posts}
           courses={courses}
           user={auth.user}
+          profiles={publicProfiles}
           bookmarkedIds={bookmarkStore.bookmarkedIds}
           savedCourseIds={savedCourseStore.savedCourseIds}
           onHome={() => navigate('home')}
@@ -113,6 +116,7 @@ export default function App() {
       return (
         <DetailPage
           post={selectedPost}
+          authorProfile={publicProfiles.get(selectedPost.ownerId)}
           user={auth.user}
           bookmarked={bookmarkStore.bookmarkedIds.has(selectedPost.id)}
           relatedCourses={relatedCourses}
@@ -149,6 +153,7 @@ export default function App() {
         posts={posts}
         courses={courses}
         user={auth.user}
+        profiles={publicProfiles}
         bookmarkedIds={bookmarkStore.bookmarkedIds}
         savedCourseIds={savedCourseStore.savedCourseIds}
         onOpenCourse={(courseId) => navigate('course', courseId)}

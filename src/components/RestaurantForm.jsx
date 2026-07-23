@@ -1,10 +1,15 @@
 import { useState } from 'react';
+import { lookupPlaceDetails } from '../services/placeService';
 
 const INITIAL_FORM = {
   name: '',
   region: '전라남도 구례군',
   address: '',
   menu: '',
+  hours: '',
+  phone: '',
+  lat: '',
+  lng: '',
   description: '',
   tags: '',
 };
@@ -14,6 +19,8 @@ export function RestaurantForm({ userId, onSubmit }) {
   const [photos, setPhotos] = useState([]);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [lookingUp, setLookingUp] = useState(false);
+  const [lookupMessage, setLookupMessage] = useState('');
 
   const updateField = (event) => {
     setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
@@ -25,13 +32,44 @@ export function RestaurantForm({ userId, onSubmit }) {
       setError('사진은 장당 10MB 이하의 이미지 파일만 올릴 수 있어요.');
       return;
     }
-    setPhotos(files.map((file) => ({ file, comment: '', lat: '', lng: '' })));
+    setPhotos(files.map((file) => ({
+      file,
+      comment: '',
+      lat: form.lat,
+      lng: form.lng,
+    })));
     setError('');
   };
   const updatePhoto = (index, field, value) => {
     setPhotos((current) => current.map((photo, photoIndex) =>
       photoIndex === index ? { ...photo, [field]: value } : photo,
     ));
+  };
+  const lookupPlace = async () => {
+    setLookingUp(true);
+    setLookupMessage('');
+    try {
+      const details = await lookupPlaceDetails(form.name, form.address);
+      setForm((current) => ({
+        ...current,
+        hours: details.hours || current.hours,
+        phone: details.phone || current.phone,
+        lat: details.lat ?? current.lat,
+        lng: details.lng ?? current.lng,
+      }));
+      setPhotos((current) => current.map((photo) => ({
+        ...photo,
+        lat: photo.lat || details.lat || '',
+        lng: photo.lng || details.lng || '',
+      })));
+      setLookupMessage(details.hours || details.phone
+        ? '공개 장소 정보를 자동으로 채웠어요. · © OpenStreetMap contributors'
+        : '장소는 찾았지만 공개된 운영시간·전화번호가 없어요. · © OpenStreetMap contributors');
+    } catch (lookupError) {
+      setLookupMessage(lookupError.message);
+    } finally {
+      setLookingUp(false);
+    }
   };
 
   const submit = async (event) => {
@@ -58,6 +96,8 @@ export function RestaurantForm({ userId, onSubmit }) {
         region: form.region.trim(),
         address: form.address.trim(),
         menu: form.menu.trim(),
+        hours: form.hours.trim() || '방문 전 운영시간 확인',
+        phone: form.phone.trim() || '매장 문의',
         description: form.description.trim(),
         tags: form.tags.split(',').map((tag) => tag.trim()).filter(Boolean),
         photos,
@@ -78,7 +118,17 @@ export function RestaurantForm({ userId, onSubmit }) {
         <label><span>지역 *</span><input name="region" value={form.region} readOnly /></label>
       </div>
       <label><span>구례군 주소 *</span><input name="address" value={form.address} onChange={updateField} placeholder="전라남도 구례군 ..." /></label>
+      <div className="place-lookup-row">
+        <button className="ghost" type="button" onClick={lookupPlace} disabled={lookingUp}>
+          {lookingUp ? '장소 정보 조회 중…' : '운영시간·전화번호 자동 채우기'}
+        </button>
+        {lookupMessage && <small role="status">{lookupMessage}</small>}
+      </div>
       <label><span>대표 메뉴 *</span><input name="menu" value={form.menu} onChange={updateField} /></label>
+      <div className="form-grid">
+        <label><span>운영시간</span><input name="hours" value={form.hours} onChange={updateField} placeholder="예: 매일 11:00~20:00" /></label>
+        <label><span>전화번호</span><input name="phone" value={form.phone} onChange={updateField} placeholder="예: 061-000-0000" /></label>
+      </div>
       <label>
         <span>나만의 후기 *</span>
         <textarea name="description" value={form.description} onChange={updateField} rows="5" />

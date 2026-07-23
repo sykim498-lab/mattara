@@ -30,8 +30,8 @@ export function NewRestaurantPage({ user, loading, onHome, onLogin }) {
           <span aria-hidden="true">✅</span>
           <h1>새 게시물이 공개됐어요</h1>
           <p>등록한 맛집을 홈 피드에서 바로 확인할 수 있습니다.</p>
-          {publication.usedFallbackImage && (
-            <p>사진 저장소가 준비되지 않아 대표 기본 이미지로 게시했습니다.</p>
+          {publication.imageMode === 'default' && (
+            <p>사진을 처리하지 못해 대표 기본 이미지로 게시했습니다.</p>
           )}
           <button className="primary" type="button" onClick={onHome}>홈으로 돌아가기</button>
         </div>

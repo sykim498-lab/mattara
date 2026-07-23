@@ -1,12 +1,13 @@
 import { getFirebaseAuth, getFirestoreDatabase } from './firebase';
 import { uploadPostImages } from './storageService';
+import { embedPostImages } from './imageService';
 
 const FALLBACK_POST_IMAGE = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=85';
 const STORAGE_ENABLED = import.meta.env.VITE_FIREBASE_STORAGE_ENABLED !== 'false';
 const UPLOAD_TIMEOUT_MS = 10000;
 const PUBLISH_TIMEOUT_MS = 15000;
 
-function fallbackImages(photos, description) {
+function defaultImages(photos, description) {
   return [{
     url: FALLBACK_POST_IMAGE,
     comment: photos[0]?.comment?.trim() || description,
@@ -79,8 +80,8 @@ export async function signOut() {
 
 export async function publishRestaurant(values) {
   const { photos = [], ...document } = values;
-  let usedFallbackImage = !STORAGE_ENABLED;
-  let images = fallbackImages(photos, document.description);
+  let imageMode = 'storage';
+  let images;
   if (STORAGE_ENABLED) {
     try {
       images = await withTimeout(
@@ -89,7 +90,15 @@ export async function publishRestaurant(values) {
         '사진 업로드 시간이 초과됐어요.',
       );
     } catch {
-      usedFallbackImage = true;
+      imageMode = 'firestore';
+    }
+  } else imageMode = 'firestore';
+  if (!images) {
+    try {
+      images = await embedPostImages(photos, document.description);
+    } catch {
+      imageMode = 'default';
+      images = defaultImages(photos, document.description);
     }
   }
   const postId = Date.now();
@@ -102,6 +111,8 @@ export async function publishRestaurant(values) {
     region: document.region,
     address: document.address,
     menu: document.menu,
+    hours: document.hours,
+    phone: document.phone,
     caption: document.description,
     tags: document.tags,
     images,
@@ -114,5 +125,5 @@ export async function publishRestaurant(values) {
     published: true,
     createdAt: serverTimestamp(),
   }), PUBLISH_TIMEOUT_MS, '서버 응답 시간이 초과됐어요. 네트워크 연결을 확인한 뒤 다시 시도해 주세요.');
-  return { id: postId, status: 'published', usedFallbackImage };
+  return { id: postId, status: 'published', imageMode };
 }

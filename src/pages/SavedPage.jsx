@@ -1,11 +1,13 @@
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { FeedCard } from '../components/FeedCard';
 import { CourseFeedCard } from '../components/CourseFeedCard';
+import { ProfileSettings } from '../components/ProfileSettings';
 
 export function SavedPage({
   posts,
   courses,
   user,
+  profiles = new Map(),
   bookmarkedIds,
   savedCourseIds,
   onHome,
@@ -27,6 +29,7 @@ export function SavedPage({
           </div>
           <span>맛집 {savedPosts.length} · 코스 {savedCourses.length}</span>
         </div>
+        {user && <ProfileSettings user={user} profile={profiles.get(user.uid)} />}
         <section className="saved-course-section">
           <h2>저장한 여행 코스</h2>
           {savedCourses.length ? (
@@ -49,6 +52,7 @@ export function SavedPage({
           {savedPosts.length ? savedPosts.map((post) => (
             <FeedCard
               post={post}
+              authorProfile={profiles.get(post.ownerId)}
               user={user}
               bookmarked
               onOpen={onOpenPost}

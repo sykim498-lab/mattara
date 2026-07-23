@@ -68,6 +68,8 @@ export async function updateSubmissionStatus(submission, status) {
       region: submission.region,
       address: submission.address,
       menu: submission.menu,
+      hours: submission.hours ?? '방문 전 운영시간 확인',
+      phone: submission.phone ?? '매장 문의',
       caption: submission.description,
       tags: submission.tags ?? [],
       images: submission.images ?? [],

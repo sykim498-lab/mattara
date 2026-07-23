@@ -1,11 +1,14 @@
-export function PostAuthor({ post, showRegion = false }) {
+export function PostAuthor({ post, profile, showRegion = false }) {
+  const avatar = profile?.avatar || post.avatar;
+  const author = profile?.displayName || post.author;
+  const handle = profile?.handle || post.handle;
   return (
     <div className="author">
-      <img className="avatar" src={post.avatar} alt="" />
+      <img className="avatar" src={avatar} alt={`${author} 프로필`} />
       <div className="author-info">
-        <strong>{post.author}</strong>
+        <strong>{author}</strong>
         <small>
-          {post.handle}
+          {handle}
           {showRegion && ` · ${post.region}`}
         </small>
       </div>

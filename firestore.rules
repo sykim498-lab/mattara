@@ -45,7 +45,7 @@ service cloud.firestore {
     function isValidMemberPost() {
       return signedIn()
         && request.resource.data.keys().hasOnly([
-          'id', 'ownerId', 'name', 'region', 'address', 'menu', 'caption',
+          'id', 'ownerId', 'name', 'region', 'address', 'menu', 'hours', 'phone', 'caption',
           'tags', 'images', 'author', 'handle', 'avatar', 'rating', 'likes',
           'comments', 'published', 'createdAt'
         ])
@@ -56,6 +56,8 @@ service cloud.firestore {
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0
         && request.resource.data.menu is string
+        && request.resource.data.hours is string
+        && request.resource.data.phone is string
         && request.resource.data.caption is string
         && request.resource.data.tags is list
         && request.resource.data.images is list
@@ -94,6 +96,22 @@ service cloud.firestore {
       match /{document=**} {
         allow read, write: if signedIn() && request.auth.uid == userId;
       }
+    }
+
+    match /publicProfiles/{userId} {
+      allow read: if true;
+      allow create, update: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly([
+          'displayName', 'handle', 'avatar', 'updatedAt'
+        ])
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() > 0
+        && request.resource.data.displayName.size() <= 30
+        && request.resource.data.handle is string
+        && request.resource.data.avatar is string
+        && request.resource.data.avatar.size() <= 200000;
+      allow delete: if signedIn() && (request.auth.uid == userId || isAdmin());
     }
 
     match /restaurant_submissions/{submissionId} {

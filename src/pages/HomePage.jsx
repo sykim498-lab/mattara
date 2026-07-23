@@ -4,6 +4,7 @@ import { FeedCard } from '../components/FeedCard';
 export function HomePage({
   courses = [],
   posts = [],
+  profiles = new Map(),
   user,
   bookmarkedIds = new Set(),
   onOpenCourse = () => {},
@@ -40,6 +41,7 @@ export function HomePage({
             {memberPosts.map((post) => (
               <FeedCard
                 post={post}
+                authorProfile={profiles.get(post.ownerId)}
                 user={user}
                 bookmarked={bookmarkedIds.has(post.id)}
                 onOpen={onOpenPost}
