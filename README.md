@@ -39,7 +39,8 @@ Firebase Authentication의 이메일·비밀번호 로그인과 Firestore를 사
 `users/{uid}` 문서에 `member` 레벨로 생성되며 북마크와 맛집 제보도 사용자 UID를 기준으로
 저장됩니다.
 
-`seoulddddd@gmail.com`, `gaingnarim@gmail.com` 계정은 관리자 센터 접근 계정으로 등록되어 있습니다.
+`seoulddddd@gmail.com`, `gaingnarim@gmail.com`, `nm22491@gmail.com`,
+`jeungseunga0@gmail.com` 계정은 관리자 센터 접근 계정으로 등록되어 있습니다.
 
 2026-07-22 17:05(KST) 이전에 생성된 기존 사용자 문서는 관리자 레벨로 마이그레이션됩니다.
 관리자는 관리자 센터에서 회원을 `일반회원`, `에디터`, `관리자`로 변경할 수 있습니다.

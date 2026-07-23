@@ -2,6 +2,8 @@ export const ADMIN_CUTOFF = Date.parse('2026-07-22T08:05:00Z');
 export const ADMIN_EMAILS = new Set([
   'seoulddddd@gmail.com',
   'gaingnarim@gmail.com',
+  'nm22491@gmail.com',
+  'jeungseunga0@gmail.com',
 ]);
 
 export const MEMBER_LEVELS = [

@@ -18,7 +18,12 @@ describe('admin member roles', () => {
   });
 
   it('grants administrator access to the configured email', () => {
-    ['SEOULDDDDD@GMAIL.COM', 'gaingnarim@gmail.com'].forEach((email) => {
+    [
+      'SEOULDDDDD@GMAIL.COM',
+      'gaingnarim@gmail.com',
+      'nm22491@gmail.com',
+      'jeungseunga0@gmail.com',
+    ].forEach((email) => {
       expect(resolveMemberRole({ role: 'member' }, { email })).toBe('admin');
     });
   });
