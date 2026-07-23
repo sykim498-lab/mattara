@@ -14,4 +14,14 @@ describe('rankRelatedCourses', () => {
     expect(ranked[0].id).toBe('local-emotion-pause');
     expect(ranked).toHaveLength(8);
   });
+
+  it('상세에서 보고 있는 코스 자체는 추천 결과에서 제외한다', () => {
+    const source = guryeCourses[0];
+    const ranked = rankRelatedCourses(guryeCourses, source, {
+      tagScores: {}, regionScores: {}, recentViews: [],
+    });
+
+    expect(ranked.map(({ id }) => id)).not.toContain(source.id);
+    expect(ranked).toHaveLength(7);
+  });
 });

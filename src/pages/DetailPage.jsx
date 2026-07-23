@@ -112,9 +112,10 @@ export function DetailPage({
           </aside>
         </div>
         <RelatedCourses
-          post={post}
+          source={post}
           courses={relatedCourses}
           hasPreferenceHistory={hasRecommendationHistory}
+          description={`${post.author}님의 게시물 태그와 저장된 취향을 바탕으로 골랐어요.`}
           onOpenCourse={onOpenCourse}
           onResetPreferences={onResetRecommendations}
         />

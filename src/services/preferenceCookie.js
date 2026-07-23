@@ -59,7 +59,8 @@ export function recordPostInteraction(post, type = 'view') {
     tagScores[tag] = Math.min((tagScores[tag] ?? 0) + weight, 30);
   });
   const regionScores = { ...preferences.regionScores };
-  regionScores[post.region] = Math.min((regionScores[post.region] ?? 0) + weight, 30);
+  const region = post.region ?? '전라남도 구례군';
+  regionScores[region] = Math.min((regionScores[region] ?? 0) + weight, 30);
   const recentViews = [post.id, ...preferences.recentViews.filter((id) => id !== post.id)]
     .slice(0, 12);
   writePreferences({ tagScores, regionScores, recentViews });
@@ -75,12 +76,12 @@ export function recordTagSelection(tags) {
   window.dispatchEvent(new Event(PREFERENCE_EVENT));
 }
 
-export function rankRelatedCourses(courses, post, preferences = readPreferences()) {
-  const postTags = new Set(post?.tags ?? []);
+export function rankRelatedCourses(courses, source, preferences = readPreferences()) {
+  const sourceTags = new Set(source?.tags ?? []);
   return courses
-    .filter(isGuryeCourse)
+    .filter((course) => isGuryeCourse(course) && course.id !== source?.id)
     .map((course) => {
-      const relatedTagCount = course.tags.filter((tag) => postTags.has(tag)).length;
+      const relatedTagCount = course.tags.filter((tag) => sourceTags.has(tag)).length;
       const preferenceScore = course.tags.reduce(
         (score, tag) => score + Math.min(preferences.tagScores[tag] ?? 0, 6),
         0,

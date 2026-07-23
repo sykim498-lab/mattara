@@ -2,12 +2,14 @@ import { useRef, useState } from 'react';
 import { CommentsSection } from './CommentsSection';
 import { ShareActions } from './ShareActions';
 import { TagList } from './TagList';
+import { courseAuthor } from '../data/courseAuthors';
 
 export function CourseFeedCard({ course, user, saved, onOpen, onToggleSave }) {
   const [stepIndex, setStepIndex] = useState(0);
   const touchStartX = useRef(null);
   const suppressOpen = useRef(false);
   const step = course.steps[stepIndex];
+  const author = courseAuthor(course);
   const move = (offset) => setStepIndex((current) =>
     (current + offset + course.steps.length) % course.steps.length,
   );
@@ -35,8 +37,8 @@ export function CourseFeedCard({ course, user, saved, onOpen, onToggleSave }) {
   return (
     <article className="course-feed-card panel">
       <header className="course-feed-author">
-        <span className="course-avatar">맛</span>
-        <div><b>맛따라 로컬 큐레이터</b><small>전라남도 구례군 · 코스 {course.number}</small></div>
+        <img className="course-avatar" src={author.avatar} alt="" />
+        <div><b>{author.name}</b><small>{author.handle} · 구례 코스 기록</small></div>
       </header>
       <div
         className="course-feed-photo"

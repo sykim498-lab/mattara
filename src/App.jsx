@@ -35,22 +35,23 @@ export default function App() {
   const savedCourseStore = useSavedCourses(auth.user);
   const { route, navigate, goBack } = useHashNavigation();
   const selectedPost = posts.find(({ id }) => id === route.postId);
+  const selectedCourse = courses.find(({ id }) => id === route.courseId);
+  const recommendationSource = route.view === 'course' ? selectedCourse : selectedPost;
   const {
     relatedCourses,
     hasHistory: hasRecommendationHistory,
     record: recordRecommendation,
-    recordTags,
     reset: resetRecommendations,
-  } = useRecommendations(courses, selectedPost);
+  } = useRecommendations(courses, recommendationSource);
 
   useEffect(() => {
-    if (route.view !== 'post' || !selectedPost) return;
-    const key = `mattara.view-recorded.${selectedPost.id}`;
+    if (!recommendationSource || !['post', 'course'].includes(route.view)) return;
+    const key = `mattara.view-recorded.${route.view}.${recommendationSource.id}`;
     const lastRecordedAt = Number(sessionStorage.getItem(key) ?? 0);
     if (Date.now() - lastRecordedAt < 5000) return;
     sessionStorage.setItem(key, String(Date.now()));
-    recordRecommendation(selectedPost, 'view');
-  }, [route.view, selectedPost, recordRecommendation]);
+    recordRecommendation(recommendationSource, 'view');
+  }, [route.view, recommendationSource, recordRecommendation]);
 
   const toggleBookmark = (post) => {
     if (!bookmarkStore.bookmarkedIds.has(post.id)) {
@@ -127,11 +128,16 @@ export default function App() {
       return (
         <Suspense fallback={<div className="view shell">구례 코스를 불러오는 중...</div>}>
           <CoursePage
+            key={route.courseId ?? 'all-courses'}
             post={selectedPost}
             sourceCourses={courses}
             initialCourseId={route.courseId}
             isCourseSaved={(courseId) => savedCourseStore.savedCourseIds.has(courseId)}
             onToggleCourseSave={savedCourseStore.toggle}
+            relatedCourses={relatedCourses}
+            hasRecommendationHistory={hasRecommendationHistory}
+            onOpenRelatedCourse={(courseId) => navigate('course', courseId)}
+            onResetRecommendations={resetRecommendations}
             onHome={() => navigate('home')}
             onPost={selectedPost ? () => navigate('post', selectedPost.id) : undefined}
           />
@@ -140,17 +146,10 @@ export default function App() {
     }
     return (
       <HomePage
-        posts={posts}
         courses={courses}
         user={auth.user}
-        categories={categoryStore.categories}
-        bookmarkedIds={bookmarkStore.bookmarkedIds}
         savedCourseIds={savedCourseStore.savedCourseIds}
-        onOpenCourses={() => navigate('course')}
         onOpenCourse={(courseId) => navigate('course', courseId)}
-        onOpenPost={(postId) => navigate('post', postId)}
-        onSelectTags={recordTags}
-        onToggleBookmark={toggleBookmark}
         onToggleCourseSave={savedCourseStore.toggle}
       />
     );

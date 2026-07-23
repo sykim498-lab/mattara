@@ -1,23 +1,25 @@
 import { TagList } from './TagList';
 
 export function RelatedCourses({
-  post,
+  source,
   courses = [],
   hasPreferenceHistory = false,
+  title = '작성자 맞춤 추천 코스',
+  description = '이 게시물의 장소와 태그를 기준으로 골랐어요.',
   onOpenCourse = () => {},
   onResetPreferences = () => {},
 }) {
   if (!courses.length) return null;
-  const postTags = new Set(post.tags);
+  const sourceTags = new Set(source.tags);
 
   return (
     <section className="related-courses" aria-labelledby="related-course-title">
       <div className="recommendation-heading">
         <div>
           <p className="eyebrow">RELATED LOCAL ROUTES</p>
-          <h2 id="related-course-title">이 게시물과 함께 보기 좋은 코스</h2>
+          <h2 id="related-course-title">{title}</h2>
           <p>
-            게시물의 장소·태그를 기준으로 골랐어요.
+            {description}
             {hasPreferenceHistory && ' 저장된 취향은 이 영역의 순위에만 반영돼요.'}
           </p>
         </div>
@@ -27,7 +29,7 @@ export function RelatedCourses({
       </div>
       <div className="related-course-grid">
         {courses.map((course) => {
-          const relatedTags = course.tags.filter((tag) => postTags.has(tag));
+          const relatedTags = course.tags.filter((tag) => sourceTags.has(tag));
           return (
             <article className="related-course-card" key={course.id}>
               <button

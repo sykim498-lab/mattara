@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { CourseMap } from '../components/CourseMap';
+import { RelatedCourses } from '../components/RelatedCourses';
 import { createCourses } from '../data/createCourses';
+import { courseAuthor } from '../data/courseAuthors';
 
 export function CoursePage({
   post,
@@ -9,6 +11,10 @@ export function CoursePage({
   initialCourseId,
   isCourseSaved = () => false,
   onToggleCourseSave = () => {},
+  relatedCourses = [],
+  hasRecommendationHistory = false,
+  onOpenRelatedCourse = () => {},
+  onResetRecommendations = () => {},
   onHome,
   onPost,
 }) {
@@ -21,10 +27,11 @@ export function CoursePage({
   const course = courses.find(({ id }) => id === courseId) ?? courses[0];
   const step = course.steps[stepIndex];
   const isSaved = isCourseSaved(course.id);
+  const author = courseAuthor(course);
   const breadcrumbItems = [
     { label: '홈 피드', onClick: onHome },
     ...(post ? [{ label: post.name, onClick: onPost }] : []),
-    { label: '추천 코스' },
+    { label: course.theme },
   ];
 
   const changeCourse = (id) => {
@@ -47,14 +54,14 @@ export function CoursePage({
           items={breadcrumbItems}
         />
         <div className="course-head">
-          <p className="eyebrow">YOUR PERFECT DAY</p>
+          <p className="eyebrow">{author.handle} · COURSE POST</p>
           <h1>
-            구례에서 즐기는<br />
-            <span>맛있는 하루 코스</span>
+            {author.name}님의<br />
+            <span>{course.theme}</span>
           </h1>
-          <p>구례 안에서 자연스럽게 이어지는 로컬 동선을 모았어요.</p>
+          <p>{course.description}</p>
         </div>
-        <div className="course-tabs" role="tablist" aria-label="추천 코스 선택">
+        {!initialCourseId && <div className="course-tabs" role="tablist" aria-label="추천 코스 선택">
           {courses.map((item) => (
             <button
               className={`course-tab${item.id === course.id ? ' active' : ''}`}
@@ -71,7 +78,7 @@ export function CoursePage({
               </small>
             </button>
           ))}
-        </div>
+        </div>}
         <div className="theme-strip">
           <div>
             <b>코스 {course.number} · {course.theme}</b>
@@ -129,6 +136,14 @@ export function CoursePage({
             ))}
           </ol>
         </div>
+        <RelatedCourses
+          source={course}
+          courses={relatedCourses}
+          hasPreferenceHistory={hasRecommendationHistory}
+          description={`${author.name}님의 코스 태그와 저장된 취향을 바탕으로 골랐어요.`}
+          onOpenCourse={onOpenRelatedCourse}
+          onResetPreferences={onResetRecommendations}
+        />
       </div>
     </section>
   );

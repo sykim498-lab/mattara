@@ -38,7 +38,7 @@ describe('DetailPage 이미지 코멘트', () => {
       />,
     );
 
-    expect(screen.getByText('이 게시물과 함께 보기 좋은 코스')).toBeInTheDocument();
+    expect(screen.getByText('작성자 맞춤 추천 코스')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', {
       name: `${guryeCourses[0].theme} 코스 상세 보기`,
     }));

@@ -1,23 +1,21 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_CATEGORIES } from '../data/categories';
+import { guryeCourses } from '../data/guryeCourses';
 import { posts } from '../data/posts';
 import { HomePage } from './HomePage';
 
 describe('HomePage', () => {
-  it('관리 데이터로 카테고리 필터를 렌더링하고 피드를 거른다', () => {
+  it('8개의 작성자별 코스 게시물만 메인 피드에 표시한다', () => {
     render(
       <HomePage
-        posts={posts}
-        categories={DEFAULT_CATEGORIES}
-        onOpenPost={() => {}}
+        courses={guryeCourses}
+        onOpenCourse={() => {}}
       />,
     );
 
-    expect(screen.getByText('구례 맛집·명소 6곳')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: /한옥카페/ }));
-    expect(screen.getByText('구례 맛집·명소 1곳')).toBeInTheDocument();
-    expect(screen.getByText('쌍산재 한옥차담')).toBeInTheDocument();
-    expect(screen.queryByText('광양숯불갈비')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: /코스 상세 보기/ })).toHaveLength(8);
+    expect(screen.getByText('작성자별 구례 코스 피드')).toBeInTheDocument();
+    expect(screen.queryByText(posts[0].name)).not.toBeInTheDocument();
+    expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
   });
 });
